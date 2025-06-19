@@ -1,6 +1,6 @@
 /**
  * @fileoverview Provides a comprehensive `Sanitization` class for various input cleaning and validation tasks.
- * This module includes utilities for sanitizing HTML, strings, URLs, file paths, JSON, numbers,
+ * This module includes utilities for sanitizing HTML, LaTeX, strings, URLs, file paths, JSON, numbers,
  * and for redacting sensitive information from data intended for logging.
  * @module src/utils/security/sanitization
  */
@@ -65,8 +65,21 @@ export interface HtmlSanitizeConfig {
 }
 
 /**
+ * Defines options for LaTeX sanitization.
+ */
+export interface LatexSanitizeOptions {
+  /**
+   * The sanitization strategy.
+   * 'escape': Escapes special characters and neutralizes dangerous commands.
+   * 'strict': A more aggressive strategy that removes more constructs.
+   * @default 'escape'
+   */
+  strategy?: "escape" | "strict";
+}
+
+/**
  * A singleton class providing various methods for input sanitization.
- * Aims to protect against common vulnerabilities like XSS and path traversal.
+ * Aims to protect against common vulnerabilities like XSS, path traversal, and LaTeX injection.
  */
 export class Sanitization {
   /** @private */
@@ -91,6 +104,41 @@ export class Sanitization {
     "card",
     "cvv",
     "authorization",
+  ];
+
+  /**
+   * A list of dangerous LaTeX commands that should be neutralized.
+   * This list targets commands that can read/write files or execute shell commands.
+   * @private
+   */
+  private dangerousLatexCommands: string[] = [
+    "input",
+    "include",
+    "openin",
+    "read",
+    "write",
+    "write18",
+    "immediate",
+    "ShellEscape",
+    "def",
+    "gdef",
+    "edef",
+    "xdef",
+    "let",
+    "futurelet",
+    "catcode",
+    "newread",
+    "newwrite",
+    "closein",
+    "closeout",
+    "usepackage",
+    "documentclass",
+    "includeonly",
+    "typeout",
+    "message",
+    "errmessage",
+    "shipout",
+    "special",
   ];
 
   /**
@@ -313,6 +361,76 @@ export class Sanitization {
         { input },
       );
     }
+  }
+
+  /**
+   * Sanitizes a string containing LaTeX code to prevent common security vulnerabilities.
+   * This method escapes special LaTeX characters and neutralizes potentially dangerous commands
+   * that could allow file access or command execution. This is intended for user-provided
+   * content, not for structural document commands.
+   *
+   * @param input - The LaTeX string to sanitize.
+   * @param options - Configuration for the sanitization process.
+   * @returns The sanitized LaTeX string.
+   */
+  public sanitizeLatex(
+    input: string,
+    options: LatexSanitizeOptions = {},
+  ): string {
+    if (!input) return "";
+
+    const { strategy = "escape" } = options;
+    let sanitized = input;
+
+    // 1. Escape special LaTeX characters to prevent them from being interpreted as commands.
+    // This is the primary defense for user-provided content.
+    sanitized = sanitized
+      .replace(/\\/g, "\\textbackslash{}")
+      .replace(/&/g, "\\&")
+      .replace(/%/g, "\\%")
+      .replace(/\$/g, "\\$")
+      .replace(/#/g, "\\#")
+      .replace(/_/g, "\\_")
+      .replace(/{/g, "\\{")
+      .replace(/}/g, "\\}")
+      .replace(/~/g, "\\textasciitilde{}")
+      .replace(/\^/g, "\\textasciicircum{}");
+
+    // 2. Neutralize known dangerous commands as a second layer of defense.
+    // This replaces commands like `\input` with a harmless text representation.
+    this.dangerousLatexCommands.forEach((cmd) => {
+      const commandRegex = new RegExp(`\\\\${cmd}(?![a-zA-Z])`, "g");
+      sanitized = sanitized.replace(
+        commandRegex,
+        `\\texttt{\\textbackslash${cmd}}`,
+      );
+    });
+
+    // 3. Neutralize dangerous environments like `filecontents`.
+    const dangerousEnvs = ["filecontents", "filecontents*"];
+    dangerousEnvs.forEach((env) => {
+      const beginRegex = new RegExp(`\\\\begin\\{${env}\\}`, "g");
+      const endRegex = new RegExp(`\\\\end\\{${env}\\}`, "g");
+      sanitized = sanitized.replace(
+        beginRegex,
+        `\\begin{verbatim} % Blocked Environment: ${env}`,
+      );
+      sanitized = sanitized.replace(
+        endRegex,
+        `\\end{verbatim} % Blocked Environment: ${env}`,
+      );
+    });
+
+    if (strategy === "strict") {
+      logger.debug(
+        "Using strict LaTeX sanitization strategy.",
+        requestContextService.createRequestContext({
+          operation: "Sanitization.sanitizeLatex.strict",
+        }),
+      );
+    }
+
+    return sanitized;
   }
 
   /**

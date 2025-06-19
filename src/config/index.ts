@@ -143,6 +143,9 @@ const EnvSchema = z.object({
   /** Optional. Default LLM min_p (0.0-1.0). */
   LLM_DEFAULT_MIN_P: z.coerce.number().min(0).max(1).optional(),
 
+  /** The root directory for all document file operations. Defaults to "./data". */
+  DOCWRITER_DATA_PATH: z.string().default(path.join(projectRoot, "data")),
+
   /** Optional. OAuth provider authorization endpoint URL. */
   OAUTH_PROXY_AUTHORIZATION_URL: z
     .string()
@@ -275,6 +278,23 @@ if (!validatedLogsPath) {
 }
 // --- End Logs Directory Handling ---
 
+// --- Data Directory Handling ---
+const validatedDataPath = ensureDirectory(
+  env.DOCWRITER_DATA_PATH,
+  projectRoot,
+  "data",
+);
+
+if (!validatedDataPath) {
+  if (process.stdout.isTTY) {
+    console.error(
+      "FATAL: Data directory configuration is invalid or could not be created. Please check permissions and path. Exiting.",
+    );
+  }
+  process.exit(1); // Exit if data directory is not usable
+}
+// --- End Data Directory Handling ---
+
 /**
  * Main application configuration object.
  * Aggregates settings from validated environment variables and `package.json`.
@@ -330,6 +350,9 @@ export const config = {
   llmDefaultTopK: env.LLM_DEFAULT_TOP_K,
   /** Default LLM min_p. From `LLM_DEFAULT_MIN_P`. */
   llmDefaultMinP: env.LLM_DEFAULT_MIN_P,
+
+  /** Absolute path to the data directory for docwriter. From `DOCWRITER_DATA_PATH` env var. */
+  docwriterDataPath: validatedDataPath,
 
   /** OAuth Proxy configurations. Undefined if no related env vars are set. */
   oauthProxy:

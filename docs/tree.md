@@ -1,6 +1,6 @@
 # docwriter-mcp-server - Directory Structure
 
-Generated on: 2025-06-19 02:31:14
+Generated on: 2025-06-19 02:56:24
 
 ```
 docwriter-mcp-server
@@ -8,6 +8,7 @@ docwriter-mcp-server
 │   ├── workflows
 │   │   └── publish.yml
 │   └── FUNDING.yml
+├── data
 ├── docs
 │   ├── api-references
 │   │   ├── duckDB.md
@@ -26,12 +27,12 @@ docwriter-mcp-server
 │   │   └── index.ts
 │   ├── mcp-server
 │   │   ├── resources
-│   │   │   └── echoResource
-│   │   │       ├── echoResourceLogic.ts
-│   │   │       ├── index.ts
-│   │   │       └── registration.ts
 │   │   ├── tools
 │   │   │   ├── catFactFetcher
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── logic.ts
+│   │   │   │   └── registration.ts
+│   │   │   ├── createLatexDocument
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── logic.ts
 │   │   │   │   └── registration.ts

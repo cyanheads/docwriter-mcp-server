@@ -69,7 +69,17 @@ Security is a critical, non-negotiable aspect of this server due to its direct i
 ### 1. LaTeX Input Sanitization (CRITICAL)
 
 -   **Threat Model**: Maliciously crafted LaTeX input can be used to read arbitrary files from the server (e.g., `\input{/etc/passwd}`) or execute arbitrary shell commands (if `\write18` is enabled).
--   **Mandatory Action**: All user-provided content that will be written into a `.tex` file **must** be processed by the sanitization function located at `src/utils/security/sanitization.ts`.
+-   **Mandatory Action**: All user-provided content that will be written into a `.tex` file **must** be processed by the `sanitizeLatex` method from the singleton instance located at `src/utils/security/sanitization.ts`.
+-   **Implementation**: To use the sanitizer, import the `sanitization` singleton and call the `sanitizeLatex` method on any user-provided string that will be inserted into a LaTeX document.
+
+    ```typescript
+    import { sanitization } from "src/utils/security";
+
+    // ... inside a tool's logic function
+    const unsafeContent = "user-provided string with potential LaTeX commands";
+    const safeContent = sanitization.sanitizeLatex(unsafeContent);
+    // Use safeContent when writing to a .tex file
+    ```
 -   **Responsibility**: The developer implementing or modifying a tool that accepts content (e.g., `docwriter_update_document_block`) is responsible for ensuring this sanitization is correctly applied. This is a required step for all code reviews.
 
 ### 2. Filesystem and Command Execution

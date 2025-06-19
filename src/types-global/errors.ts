@@ -21,8 +21,14 @@ export enum BaseErrorCode {
   FORBIDDEN = "FORBIDDEN",
   /** The requested resource or entity could not be found. */
   NOT_FOUND = "NOT_FOUND",
+  /** A required template file could not be found. */
+  TEMPLATE_NOT_FOUND = "TEMPLATE_NOT_FOUND",
+  /** A specific block within a document could not be found. */
+  BLOCK_NOT_FOUND = "BLOCK_NOT_FOUND",
   /** The request could not be completed due to a conflict with the current state of the resource. */
   CONFLICT = "CONFLICT",
+  /** Attempted to create a document that already exists. */
+  DOCUMENT_ALREADY_EXISTS = "DOCUMENT_ALREADY_EXISTS",
   /** The request failed due to invalid input parameters or data. */
   VALIDATION_ERROR = "VALIDATION_ERROR",
   /** An error occurred while parsing input data (e.g., date string, JSON). */
@@ -49,6 +55,14 @@ export enum BaseErrorCode {
   EXTENSION_ERROR = "EXTENSION_ERROR",
   /** An error occurred during the shutdown phase of a service or module. */
   SHUTDOWN_ERROR = "SHUTDOWN_ERROR",
+  /** A generic file system error occurred. */
+  FILE_SYSTEM_ERROR = "FILE_SYSTEM_ERROR",
+  /** An error occurred during LaTeX compilation. */
+  COMPILATION_FAILED = "COMPILATION_FAILED",
+  /** LaTeX compilation timed out. */
+  COMPILATION_TIMEOUT = "COMPILATION_TIMEOUT",
+  /** A diff/patch operation failed to apply cleanly. */
+  PATCH_FAILED = "PATCH_FAILED",
 }
 
 /**
