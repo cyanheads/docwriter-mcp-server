@@ -1,7 +1,7 @@
 /**
- * @fileoverview Handles the registration of the `docwriter_create_latex_document` tool
+ * @fileoverview Handles the registration of the `docwriter_compile_latex_to_pdf` tool
  * with an MCP server instance.
- * @module src/mcp-server/tools/docwriter_create_latex_document/registration
+ * @module src/mcp-server/tools/compileLatexToPdf/registration
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -14,23 +14,23 @@ import {
   requestContextService,
 } from "../../../utils/index.js";
 import {
-  createLatexDocumentLogic,
-  CreateLatexDocumentInput,
-  CreateLatexDocumentInputSchema,
+  compileLatexToPdfLogic,
+  CompileLatexToPdfInput,
+  CompileLatexToPdfInputSchema,
 } from "./logic.js";
 
 /**
- * Registers the 'docwriter_create_latex_document' tool and its handler with the MCP server.
+ * Registers the 'docwriter_compile_latex_to_pdf' tool and its handler with the MCP server.
  *
  * @param {McpServer} server - The MCP server instance to register the tool with.
  * @returns {Promise<void>} A promise that resolves when tool registration is complete.
  */
-export const registerCreateLatexDocumentTool = async (
+export const registerCompileLatexToPdfTool = async (
   server: McpServer,
 ): Promise<void> => {
-  const toolName = "docwriter_create_latex_document";
+  const toolName = "docwriter_compile_latex_to_pdf";
   const toolDescription =
-    "Bootstraps a new, structured document from a template. Creates a new .tex file from a template, populating metadata placeholders. The full content of the template file, including all defined content blocks, is returned. Available templates: simple_report, ieee_article, research_report.";
+    "Compiles a .tex document into a PDF. This is a potentially long-running operation that handles complex documents requiring multiple passes.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({
@@ -45,9 +45,9 @@ export const registerCreateLatexDocumentTool = async (
       server.tool(
         toolName,
         toolDescription,
-        CreateLatexDocumentInputSchema.shape,
+        CompileLatexToPdfInputSchema.shape,
         async (
-          params: CreateLatexDocumentInput,
+          params: CompileLatexToPdfInput,
           mcpContext: any,
         ): Promise<CallToolResult> => {
           const handlerContext: RequestContext =
@@ -60,14 +60,14 @@ export const registerCreateLatexDocumentTool = async (
             });
 
           try {
-            const result = await createLatexDocumentLogic(params, handlerContext);
+            const result = await compileLatexToPdfLogic(params, handlerContext);
             return {
               content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
               isError: false,
             };
           } catch (error) {
             const handledError = ErrorHandler.handleError(error, {
-              operation: "createLatexDocumentToolHandler",
+              operation: "compileLatexToPdfToolHandler",
               context: handlerContext,
               input: params,
             });
@@ -77,7 +77,7 @@ export const registerCreateLatexDocumentTool = async (
                 ? handledError
                 : new McpError(
                     BaseErrorCode.INTERNAL_ERROR,
-                    "An unexpected error occurred while creating the LaTeX document.",
+                    "An unexpected error occurred while compiling the LaTeX document.",
                     { originalErrorName: handledError.name },
                   );
 

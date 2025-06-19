@@ -1,8 +1,7 @@
 /**
- * @fileoverview Handles the registration of the `get_random_cat_fact` tool
- * with an MCP server instance. This tool fetches a random cat fact from the
- * Cat Fact Ninja API.
- * @module src/mcp-server/tools/catFactFetcher/registration
+ * @fileoverview Handles the registration of the `docwriter_list_latex_documents` tool
+ * with an MCP server instance.
+ * @module src/mcp-server/tools/listLatexDocuments/registration
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -15,23 +14,23 @@ import {
   requestContextService,
 } from "../../../utils/index.js";
 import {
-  CatFactFetcherInput,
-  CatFactFetcherInputSchema,
-  catFactFetcherLogic,
+  listLatexDocumentsLogic,
+  ListLatexDocumentsInput,
+  ListLatexDocumentsInputSchema,
 } from "./logic.js";
 
 /**
- * Registers the 'get_random_cat_fact' tool and its handler with the MCP server.
+ * Registers the 'docwriter_list_latex_documents' tool and its handler with the MCP server.
  *
- * @param server - The MCP server instance to register the tool with.
- * @returns A promise that resolves when tool registration is complete.
+ * @param {McpServer} server - The MCP server instance to register the tool with.
+ * @returns {Promise<void>} A promise that resolves when tool registration is complete.
  */
-export const registerCatFactFetcherTool = async (
+export const registerListLatexDocumentsTool = async (
   server: McpServer,
 ): Promise<void> => {
-  const toolName = "get_random_cat_fact";
+  const toolName = "docwriter_list_latex_documents";
   const toolDescription =
-    "Fetches a random cat fact from the Cat Fact Ninja API. Optionally, a maximum length for the fact can be specified.";
+    "Retrieves a list of all .tex documents from the data directory.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({
@@ -46,9 +45,9 @@ export const registerCatFactFetcherTool = async (
       server.tool(
         toolName,
         toolDescription,
-        CatFactFetcherInputSchema.shape,
+        ListLatexDocumentsInputSchema.shape,
         async (
-          params: CatFactFetcherInput,
+          params: ListLatexDocumentsInput,
           mcpContext: any,
         ): Promise<CallToolResult> => {
           const handlerContext: RequestContext =
@@ -61,14 +60,14 @@ export const registerCatFactFetcherTool = async (
             });
 
           try {
-            const result = await catFactFetcherLogic(params, handlerContext);
+            const result = await listLatexDocumentsLogic(params, handlerContext);
             return {
               content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
               isError: false,
             };
           } catch (error) {
             const handledError = ErrorHandler.handleError(error, {
-              operation: "catFactFetcherToolHandler",
+              operation: "listLatexDocumentsToolHandler",
               context: handlerContext,
               input: params,
             });
@@ -78,7 +77,7 @@ export const registerCatFactFetcherTool = async (
                 ? handledError
                 : new McpError(
                     BaseErrorCode.INTERNAL_ERROR,
-                    "An unexpected error occurred while fetching a cat fact.",
+                    "An unexpected error occurred while listing the LaTeX documents.",
                     { originalErrorName: handledError.name },
                   );
 

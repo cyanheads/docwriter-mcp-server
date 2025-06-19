@@ -7,9 +7,8 @@
 
 import { promises as fs } from "fs";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { config } from "../../../config/index.js";
+import { config, projectRootPath } from "../../../config/index.js";
 import { BaseErrorCode, McpError } from "../../../types-global/errors.js";
 import { logger, type RequestContext } from "../../../utils/index.js";
 
@@ -19,17 +18,20 @@ import { logger, type RequestContext } from "../../../utils/index.js";
 export const CreateLatexDocumentInputSchema = z.object({
   title: z.string().describe("The main title for the document."),
   author: z.string().describe("The name of the primary author."),
-  documentId: z
+  filename: z
     .string()
-    .optional()
+    .regex(
+      /^[a-zA-Z0-9_-]+$/,
+      "Filename must be alphanumeric, with optional underscores or hyphens.",
+    )
     .describe(
-      "An optional unique ID for the document. If not provided, a UUID will be generated.",
+      "The unique filename for the document, without the .tex extension (e.g., 'my-report'). Consider including the current date for versioning.",
     ),
   template: z
-    .enum(["simple_report", "ieee_article"])
+    .enum(["simple_report", "ieee_article", "research_report"])
     .default("simple_report")
     .describe(
-      "The base template to use. The tool will return the full content of the template file, including all defined content blocks so you have a complete document structure.",
+      "The base template to use. The tool will return the full content of the template file, including all defined content blocks so you have a complete understanding of the document structure.",
     ),
 });
 
@@ -62,7 +64,7 @@ export async function createLatexDocumentLogic(
 ): Promise<CreateLatexDocumentResponse> {
   logger.debug("Processing create_latex_document logic.", { ...context, toolInput: params });
 
-  const documentId = params.documentId || uuidv4();
+  const documentId = params.filename;
   const docPath = path.join(config.docwriterDataPath, `${documentId}.tex`);
 
   // 1. Check if document already exists
@@ -85,8 +87,8 @@ export async function createLatexDocumentLogic(
   }
 
   // 2. Load the template file
-  const templatePath = path.resolve(
-    process.cwd(),
+  const templatePath = path.join(
+    projectRootPath,
     "templates",
     `${params.template}.tex`,
   );

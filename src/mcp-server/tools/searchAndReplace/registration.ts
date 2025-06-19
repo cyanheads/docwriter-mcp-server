@@ -1,8 +1,7 @@
 /**
- * @fileoverview Handles the registration of the `echo_message` tool with an MCP server instance.
- * This module defines the tool's metadata, its input schema shape,
- * and the asynchronous handler function that processes tool invocation requests.
- * @module src/mcp-server/tools/echoTool/registration
+ * @fileoverview Handles the registration of the `docwriter_search_replace` tool
+ * with an MCP server instance.
+ * @module src/mcp-server/tools/searchAndReplace/registration
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -15,21 +14,23 @@ import {
   requestContextService,
 } from "../../../utils/index.js";
 import {
-  EchoToolInput,
-  EchoToolInputSchema,
-  echoToolLogic,
+  searchAndReplaceLogic,
+  SearchAndReplaceInput,
+  SearchAndReplaceInputSchema,
 } from "./logic.js";
 
 /**
- * Registers the 'echo_message' tool and its handler with the provided MCP server instance.
+ * Registers the 'docwriter_search_replace' tool and its handler with the MCP server.
  *
- * @param server - The MCP server instance to register the tool with.
- * @returns A promise that resolves when the tool registration is complete.
+ * @param {McpServer} server - The MCP server instance to register the tool with.
+ * @returns {Promise<void>} A promise that resolves when tool registration is complete.
  */
-export const registerEchoTool = async (server: McpServer): Promise<void> => {
-  const toolName = "echo_message";
+export const registerSearchAndReplaceTool = async (
+  server: McpServer,
+): Promise<void> => {
+  const toolName = "docwriter_search_replace";
   const toolDescription =
-    "Echoes a message back with optional formatting and repetition.";
+    "Searches for and replaces text within a LaTeX document. This is suitable for simple, global text replacements.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({
@@ -44,9 +45,9 @@ export const registerEchoTool = async (server: McpServer): Promise<void> => {
       server.tool(
         toolName,
         toolDescription,
-        EchoToolInputSchema.shape,
+        SearchAndReplaceInputSchema.shape,
         async (
-          params: EchoToolInput,
+          params: SearchAndReplaceInput,
           mcpContext: any,
         ): Promise<CallToolResult> => {
           const handlerContext: RequestContext =
@@ -59,14 +60,14 @@ export const registerEchoTool = async (server: McpServer): Promise<void> => {
             });
 
           try {
-            const result = await echoToolLogic(params, handlerContext);
+            const result = await searchAndReplaceLogic(params, handlerContext);
             return {
               content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
               isError: false,
             };
           } catch (error) {
             const handledError = ErrorHandler.handleError(error, {
-              operation: "echoToolHandler",
+              operation: "searchAndReplaceToolHandler",
               context: handlerContext,
               input: params,
             });
@@ -76,7 +77,7 @@ export const registerEchoTool = async (server: McpServer): Promise<void> => {
                 ? handledError
                 : new McpError(
                     BaseErrorCode.INTERNAL_ERROR,
-                    "An unexpected error occurred in the echo tool.",
+                    "An unexpected error occurred while performing the search and replace operation.",
                     { originalErrorName: handledError.name },
                   );
 

@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2025-06-18
+
+### Added
+- **New Template**: Added `research_report.tex` template for comprehensive research papers.
+- **New Tools**:
+  - `docwriter_search_replace`: A tool for simple, global text replacements in documents.
+  - `docwriter_update_document_block`: A tool for structured updates of named content blocks.
+  - `docwriter_compile_latex_to_pdf`: A tool to compile `.tex` files into PDFs.
+  - `docwriter_list_latex_documents`: A tool to list all available documents.
+
+### Changed
+- **Dependencies**: Updated dependencies, including adding `diff-match-patch`.
+- **Tool Refinements**: Refined the `createLatexDocument` tool to support the new `research_report` template and use a `filename` parameter instead of `documentId`.
+
+### Removed
+- **Legacy Tools**: Removed the `catFactFetcher` and `echoTool` as they are no longer relevant to the project's scope.
+- **Unused Dependency**: Removed `sanitize-latex` in favor of a more robust internal sanitization utility.
+
 ## [1.0.0] - 2025-06-18
 
 ### Added

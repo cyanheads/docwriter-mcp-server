@@ -1,6 +1,6 @@
 # docwriter-mcp-server - Directory Structure
 
-Generated on: 2025-06-19 02:56:24
+Generated on: 2025-06-19 05:04:23
 
 ```
 docwriter-mcp-server
@@ -28,7 +28,7 @@ docwriter-mcp-server
 │   ├── mcp-server
 │   │   ├── resources
 │   │   ├── tools
-│   │   │   ├── catFactFetcher
+│   │   │   ├── compileLatexToPdf
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── logic.ts
 │   │   │   │   └── registration.ts
@@ -36,7 +36,15 @@ docwriter-mcp-server
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── logic.ts
 │   │   │   │   └── registration.ts
-│   │   │   └── echoTool
+│   │   │   ├── listLatexDocuments
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── logic.ts
+│   │   │   │   └── registration.ts
+│   │   │   ├── searchAndReplace
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── logic.ts
+│   │   │   │   └── registration.ts
+│   │   │   └── updateDocumentBlock
 │   │   │       ├── index.ts
 │   │   │       ├── logic.ts
 │   │   │       └── registration.ts
@@ -78,6 +86,7 @@ docwriter-mcp-server
 │   └── index.ts
 ├── templates
 │   ├── ieee_article.tex
+│   ├── research_report.tex
 │   └── simple_report.tex
 ├── .clinerules
 ├── .dockerignore

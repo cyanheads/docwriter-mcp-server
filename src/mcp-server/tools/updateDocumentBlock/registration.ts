@@ -1,7 +1,7 @@
 /**
- * @fileoverview Handles the registration of the `docwriter_create_latex_document` tool
+ * @fileoverview Handles the registration of the `docwriter_update_document_block` tool
  * with an MCP server instance.
- * @module src/mcp-server/tools/docwriter_create_latex_document/registration
+ * @module src/mcp-server/tools/updateDocumentBlock/registration
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -14,23 +14,23 @@ import {
   requestContextService,
 } from "../../../utils/index.js";
 import {
-  createLatexDocumentLogic,
-  CreateLatexDocumentInput,
-  CreateLatexDocumentInputSchema,
+  UpdateDocumentBlockInput,
+  UpdateDocumentBlockInputSchema,
+  updateDocumentBlockLogic,
 } from "./logic.js";
 
 /**
- * Registers the 'docwriter_create_latex_document' tool and its handler with the MCP server.
+ * Registers the 'docwriter_update_document_block' tool and its handler with the MCP server.
  *
  * @param {McpServer} server - The MCP server instance to register the tool with.
  * @returns {Promise<void>} A promise that resolves when tool registration is complete.
  */
-export const registerCreateLatexDocumentTool = async (
+export const registerUpdateDocumentBlockTool = async (
   server: McpServer,
 ): Promise<void> => {
-  const toolName = "docwriter_create_latex_document";
+  const toolName = "docwriter_update_document_block";
   const toolDescription =
-    "Bootstraps a new, structured document from a template. Creates a new .tex file from a template, populating metadata placeholders. The full content of the template file, including all defined content blocks, is returned. Available templates: simple_report, ieee_article, research_report.";
+    "Replaces the content of one or more named blocks (e.g., 'abstract', 'introduction') within an existing document. This is the preferred method for structured updates, allowing for multiple sections to be updated in a single, atomic operation. Understand the structure of the document before using this tool, as it requires knowledge of the block names defined in the document.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({
@@ -45,9 +45,9 @@ export const registerCreateLatexDocumentTool = async (
       server.tool(
         toolName,
         toolDescription,
-        CreateLatexDocumentInputSchema.shape,
+        UpdateDocumentBlockInputSchema.shape,
         async (
-          params: CreateLatexDocumentInput,
+          params: UpdateDocumentBlockInput,
           mcpContext: any,
         ): Promise<CallToolResult> => {
           const handlerContext: RequestContext =
@@ -60,14 +60,14 @@ export const registerCreateLatexDocumentTool = async (
             });
 
           try {
-            const result = await createLatexDocumentLogic(params, handlerContext);
+            const result = await updateDocumentBlockLogic(params, handlerContext);
             return {
               content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
               isError: false,
             };
           } catch (error) {
             const handledError = ErrorHandler.handleError(error, {
-              operation: "createLatexDocumentToolHandler",
+              operation: "updateDocumentBlockToolHandler",
               context: handlerContext,
               input: params,
             });
@@ -77,7 +77,7 @@ export const registerCreateLatexDocumentTool = async (
                 ? handledError
                 : new McpError(
                     BaseErrorCode.INTERNAL_ERROR,
-                    "An unexpected error occurred while creating the LaTeX document.",
+                    "An unexpected error occurred while updating the document block.",
                     { originalErrorName: handledError.name },
                   );
 

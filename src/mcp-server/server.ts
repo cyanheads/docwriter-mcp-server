@@ -20,6 +20,10 @@ import { config, environment } from "../config/index.js";
 import { BaseErrorCode } from "../types-global/errors.js";
 import { ErrorHandler, logger, requestContextService } from "../utils/index.js";
 import { registerCreateLatexDocumentTool } from "./tools/createLatexDocument/index.js";
+import { registerUpdateDocumentBlockTool } from "./tools/updateDocumentBlock/index.js";
+import { registerSearchAndReplaceTool } from "./tools/searchAndReplace/index.js";
+import { registerCompileLatexToPdfTool } from "./tools/compileLatexToPdf/index.js";
+import { registerListLatexDocumentsTool } from "./tools/listLatexDocuments/index.js";
 import { startHttpTransport } from "./transports/httpTransport.js";
 import { connectStdioTransport } from "./transports/stdioTransport.js";
 
@@ -57,6 +61,10 @@ async function createMcpServerInstance(): Promise<McpServer> {
     async () => {
       logger.debug("Registering resources and tools...", context);
       await registerCreateLatexDocumentTool(server);
+      await registerUpdateDocumentBlockTool(server);
+      await registerSearchAndReplaceTool(server);
+      await registerCompileLatexToPdfTool(server);
+      await registerListLatexDocumentsTool(server);
       logger.info("Resources and tools registered successfully", context);
     },
     {
