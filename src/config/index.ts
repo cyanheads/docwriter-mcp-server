@@ -300,6 +300,8 @@ if (!validatedDataPath) {
  * Aggregates settings from validated environment variables and `package.json`.
  */
 export const config = {
+  /** The absolute path to the project's root directory. */
+  projectRoot,
   /** Information from package.json. */
   pkg,
   /** MCP server name. Env `MCP_SERVER_NAME` > `package.json` name > "mcp-ts-template". */
@@ -385,6 +387,12 @@ export const config = {
         }
       : undefined,
 };
+
+/**
+ * The absolute path to the project's root directory.
+ * Exported for convenience.
+ */
+export const projectRootPath: string = projectRoot;
 
 /**
  * Configured logging level for the application.
