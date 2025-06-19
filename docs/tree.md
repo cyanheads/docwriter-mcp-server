@@ -1,9 +1,9 @@
-# mcp-ts-template - Directory Structure
+# docwriter-mcp-server - Directory Structure
 
-Generated on: 2025-06-16 21:42:01
+Generated on: 2025-06-19 02:31:14
 
 ```
-mcp-ts-template
+docwriter-mcp-server
 ├── .github
 │   ├── workflows
 │   │   └── publish.yml
@@ -24,21 +24,6 @@ mcp-ts-template
 ├── src
 │   ├── config
 │   │   └── index.ts
-│   ├── mcp-client
-│   │   ├── client-config
-│   │   │   ├── configLoader.ts
-│   │   │   ├── mcp-config.json.example
-│   │   │   └── README.md
-│   │   ├── core
-│   │   │   ├── clientCache.ts
-│   │   │   ├── clientConnectionLogic.ts
-│   │   │   └── clientManager.ts
-│   │   ├── transports
-│   │   │   ├── httpClientTransport.ts
-│   │   │   ├── index.ts
-│   │   │   ├── stdioClientTransport.ts
-│   │   │   └── transportFactory.ts
-│   │   └── index.ts
 │   ├── mcp-server
 │   │   ├── resources
 │   │   │   └── echoResource
@@ -50,11 +35,7 @@ mcp-ts-template
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── logic.ts
 │   │   │   │   └── registration.ts
-│   │   │   ├── echoTool
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── logic.ts
-│   │   │   │   └── registration.ts
-│   │   │   └── imageTest
+│   │   │   └── echoTool
 │   │   │       ├── index.ts
 │   │   │       ├── logic.ts
 │   │   │       └── registration.ts
@@ -69,18 +50,6 @@ mcp-ts-template
 │   │   │   └── stdioTransport.ts
 │   │   ├── README.md
 │   │   └── server.ts
-│   ├── services
-│   │   ├── duck-db
-│   │   │   ├── duckDBConnectionManager.ts
-│   │   │   ├── duckDBQueryExecutor.ts
-│   │   │   ├── duckDBService.ts
-│   │   │   └── types.ts
-│   │   ├── llm-providers
-│   │   │   └── openRouterProvider.ts
-│   │   └── supabase
-│   │       └── supabaseClient.ts
-│   ├── storage
-│   │   └── duckdbExample.ts
 │   ├── types-global
 │   │   └── errors.ts
 │   ├── utils
@@ -106,6 +75,9 @@ mcp-ts-template
 │   │   │   └── sanitization.ts
 │   │   └── index.ts
 │   └── index.ts
+├── templates
+│   ├── ieee_article.tex
+│   └── simple_report.tex
 ├── .clinerules
 ├── .dockerignore
 ├── .env.example
@@ -118,6 +90,7 @@ mcp-ts-template
 ├── mcp.json
 ├── package-lock.json
 ├── package.json
+├── PROJECT-SPEC.md
 ├── README.md
 ├── repomix.config.json
 ├── smithery.yaml
