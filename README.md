@@ -2,14 +2,16 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-^5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol SDK](https://img.shields.io/badge/MCP%20SDK-^1.13.0-green.svg)](https://github.com/modelcontextprotocol/typescript-sdk)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.0.3-blue.svg)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/cyanheads/docwriter-mcp-server/issues)
+[![Status](https://img.shields.io/badge/Status-Beta-orange.svg)](https://github.com/cyanheads/docwriter-mcp-server/issues)
 [![GitHub](https://img.shields.io/github/stars/cyanheads/docwriter-mcp-server?style=social)](https://github.com/cyanheads/docwriter-mcp-server)
 
 **A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for programmatic creation, modification, and compilation of structured LaTeX documents.**
 
 This server provides a suite of tools for an AI agent or other MCP client to manage the lifecycle of a document on the local filesystem, from bootstrapping from a template to applying structured updates and compiling the final PDF output. It is built on the robust `cyanheads/mcp-ts-template`.
+
+**This project is in beta - some things may be broken. Please report any issues or feature requests on [GitHub](https://github.com/cyanheads/docwriter-mcp-server/issues).**
 
 ## 🚀 Core Capabilities: Document Tools 🛠️
 
