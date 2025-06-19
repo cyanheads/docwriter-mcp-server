@@ -22,7 +22,7 @@ The `docwriter-mcp-server` is designed for the programmatic creation and managem
 
 ### 3. Environment and Dependencies
 
-- **LaTeX Distribution**: The server's runtime environment (e.g., local machine, Docker container) **must** have a full TeX Live distribution installed, specifically including the `pdflatex` command.
+- **LaTeX Distribution**: The server's runtime environment (e.g., local machine, Docker container) **must** have a full TeX Live distribution installed, specifically including the `lualatex` and `biber` commands.
 
 ## II. Tool Development Workflow
 
@@ -60,7 +60,7 @@ Development must align with the established contracts for the five core tools:
 4.  **`docwriter_compile_latex_to_pdf`**:
 
     - **Purpose**: Compiles a `.tex` file into a PDF.
-    - **Logic**: Executes `pdflatex` on the target document. The process must run multiple times (2-3 passes) to resolve all cross-references. It must capture logs for debugging and clean up auxiliary files (`.aux`, `.log`, etc.) upon success.
+    - **Logic**: Executes `lualatex` on the target document. The process must run multiple times to resolve cross-references and automatically runs `biber` for bibliographies. It must capture logs for debugging and clean up auxiliary files (`.aux`, `.log`, etc.) upon success.
 
 5.  **`docwriter_list_latex_documents`**:
     - **Purpose**: Lists all available documents.
@@ -150,7 +150,7 @@ Security is a critical, non-negotiable aspect of this server.
 ### 2. Filesystem and Command Execution
 
 - **Permissions**: The server operates with the permissions of the user running the process. Ensure the process is run with the minimum necessary privileges.
-- **Command Injection**: When executing `pdflatex` or other shell commands, ensure that all arguments (especially filenames) are properly escaped to prevent command injection vulnerabilities. The current implementation correctly separates the command and arguments, which is a safe practice.
+- **Command Injection**: When executing `lualatex` or other shell commands, ensure that all arguments (especially filenames) are properly escaped to prevent command injection vulnerabilities. The current implementation correctly separates the command and arguments, which is a safe practice.
 
 ## V. Code Quality and Documentation
 
