@@ -30,7 +30,7 @@ export const registerListLatexDocumentsTool = async (
 ): Promise<void> => {
   const toolName = "docwriter_list_latex_documents";
   const toolDescription =
-    "Retrieves a list of all .tex documents from the data directory.";
+    "Retrieves a list of all available LaTeX documents by scanning the server's data directory. This tool is useful for discovering existing `documentId`s that can be used with other tools like `docwriter_update_document_block` or `docwriter_compile_latex_to_pdf`. It returns a simple list of document identifiers.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({

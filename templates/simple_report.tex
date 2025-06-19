@@ -1,25 +1,81 @@
-\documentclass{article}
-\title{{{TITLE}}}
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{textgreek}
+\usepackage[backend=biber, style=ieee]{biblatex}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\title{\textbf{{{TITLE}}}}
 \author{{{AUTHOR}}}
 \date{\today}
 
 \begin{document}
 
 \maketitle
+\tableofcontents
+\newpage
 
 \section*{Abstract}
+\addcontentsline{toc}{section}{Abstract}
 %% -- BLOCK: abstract -- %%
-This is a placeholder for the abstract.
+This is a placeholder for the abstract. The abstract should be a concise summary of the work.
 %% -- ENDBLOCK: abstract -- %%
 
 \section{Introduction}
 %% -- BLOCK: introduction -- %%
-This is a placeholder for the introduction.
+This is a placeholder for the introduction. This section should provide background information and state the purpose of the report.
 %% -- ENDBLOCK: introduction -- %%
+
+\section{Methodology}
+%% -- BLOCK: methodology -- %%
+This is a placeholder for the methodology. Describe the methods and procedures used in the research or project.
+%% -- ENDBLOCK: methodology -- %%
+
+\section{Results}
+%% -- BLOCK: results -- %%
+This is a placeholder for the results. Present the findings of the work here. You can include tables, figures, and data analysis.
+%% -- ENDBLOCK: results -- %%
+
+\section{Discussion}
+%% -- BLOCK: discussion -- %%
+This is a placeholder for the discussion. Interpret the results and discuss their implications.
+%% -- ENDBLOCK: discussion -- %%
 
 \section{Conclusion}
 %% -- BLOCK: conclusion -- %%
-This is a placeholder for the conclusion.
+This is a placeholder for the conclusion. Summarize the key findings and conclude the report.
 %% -- ENDBLOCK: conclusion -- %%
+
+%% -- BLOCK: bibliography -- %%
+% This block is for BibTeX entries.
+% Example:
+% @article{einstein,
+%   author = {Albert Einstein},
+%   title = {Zur Elektrodynamik bewegter Körper},
+%   journal = {Annalen der Physik},
+%   volume = {322},
+%   number = {10},
+%   pages = {891--921},
+%   year = {1905},
+%   doi = {10.1002/andp.19053221004}
+% }
+%% -- ENDBLOCK: bibliography -- %%
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+%% -- BLOCK: references -- %%
+\printbibliography
+%% -- ENDBLOCK: references -- %%
 
 \end{document}

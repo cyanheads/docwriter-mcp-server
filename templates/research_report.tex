@@ -1,20 +1,46 @@
-\documentclass{article}
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{letterpaper, margin=1in}
 \usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
 \usepackage{hyperref}
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\usepackage{textgreek}
 
-\title{{{TITLE}}}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=green,
+    urlcolor=cyan,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\thepage}
+\lhead{\nouppercase{\leftmark}}
+
+\title{\textbf{{{TITLE}}}}
 \author{{{AUTHOR}}}
 \date{\today}
 
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
+\tableofcontents
+\newpage
 
 \begin{abstract}
+\addcontentsline{toc}{section}{Abstract}
 %% -- BLOCK: abstract -- %%
 This is a placeholder for the abstract. It should provide a concise summary of the research, including the main findings and conclusions.
 %% -- ENDBLOCK: abstract -- %%
 \end{abstract}
+\newpage
 
 \section{Introduction}
 %% -- BLOCK: introduction -- %%
@@ -31,10 +57,10 @@ This is a placeholder for the literature review. This section should summarize a
 This is a placeholder for the methodology. This section should describe the research methods used to collect and analyze data.
 %% -- ENDBLOCK: methodology -- %%
 
-\section{Findings}
-%% -- BLOCK: findings -- %%
-This is a placeholder for the findings. This section should present the results of the research.
-%% -- ENDBLOCK: findings -- %%
+\section{Results}
+%% -- BLOCK: results -- %%
+This is a placeholder for the results. This section should present the findings of the research.
+%% -- ENDBLOCK: results -- %%
 
 \section{Discussion}
 %% -- BLOCK: discussion -- %%
@@ -46,7 +72,27 @@ This is a placeholder for the discussion. This section should interpret the find
 This is a placeholder for the conclusion. This section should summarize the main points of the report and suggest areas for future research.
 %% -- ENDBLOCK: conclusion -- %%
 
-\bibliographystyle{plain}
-\bibliography{references}
+%% -- BLOCK: bibliography -- %%
+% This block is for BibTeX entries.
+% Example:
+% @book{hitchhiker,
+%   author    = {Douglas Adams},
+%   title     = {The Hitchhiker's Guide to the Galaxy},
+%   publisher = {Pan Books},
+%   year      = {1979},
+% }
+%% -- ENDBLOCK: bibliography -- %%
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+%% -- BLOCK: references -- %%
+\printbibliography
+%% -- ENDBLOCK: references -- %%
+
+\appendix
+\section{Appendix}
+%% -- BLOCK: appendix -- %%
+This is a placeholder for the appendix. Supplementary materials can be placed here.
+%% -- ENDBLOCK: appendix -- %%
 
 \end{document}

@@ -30,7 +30,7 @@ export const registerSearchAndReplaceTool = async (
 ): Promise<void> => {
   const toolName = "docwriter_search_replace";
   const toolDescription =
-    "Searches for and replaces text within a LaTeX document. This is suitable for simple, global text replacements.";
+    "Performs a global search-and-replace operation on a specified LaTeX document. This tool is ideal for simple, non-structural text changes, like correcting a recurring typo or updating a name. It uses a regular expression for searching, and the replacement text is automatically sanitized to prevent security vulnerabilities. Use this for broad changes, but prefer `docwriter_update_document_block` for modifying structured content.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({

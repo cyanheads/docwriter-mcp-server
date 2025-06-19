@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2025-06-19
+
+### Changed
+
+- **Tool Descriptions**: Updated all tool descriptions and parameter descriptions to be more descriptive and provide clearer guidance on their usage and expectations.
+- **LaTeX Templates**: Significantly enhanced all LaTeX templates (`simple_report`, `ieee_article`, `research_report`) with better structure, more packages (like `biblatex`), and more detailed placeholder content.
+- **Compilation Logic**: Improved the `compileLatexToPdf` tool to automatically detect and process bibliographies using Biber, making it more robust for academic and research documents.
+- **Dockerfile**: Updated the Dockerfile to include a multi-stage build that installs a TeX Live distribution, ensuring the environment is capable of compiling the LaTeX documents.
+
 ## [1.0.2] - 2025-06-18
 
 ### Changed

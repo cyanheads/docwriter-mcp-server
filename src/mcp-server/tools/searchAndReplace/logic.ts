@@ -16,11 +16,21 @@ import { sanitization } from "../../../utils/security/index.js";
  * Zod schema for validating input arguments for the `docwriter_search_replace` tool.
  */
 export const SearchAndReplaceInputSchema = z.object({
-  documentId: z.string().describe("The ID of the document to update."),
-  searchTerm: z.string().describe("The text to search for."),
+  documentId: z
+    .string()
+    .describe(
+      "The unique identifier for the document to be updated, corresponding to its filename without the .tex extension.",
+    ),
+  searchTerm: z
+    .string()
+    .describe(
+      "The exact, case-sensitive text or a valid regex pattern to search for globally within the document.",
+    ),
   replacementText: z
     .string()
-    .describe("The text to replace the search term with."),
+    .describe(
+      "The sanitized text that will replace all occurrences of the search term. Special characters will be escaped.",
+    ),
 });
 
 /**

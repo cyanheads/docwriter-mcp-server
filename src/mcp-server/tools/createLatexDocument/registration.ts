@@ -30,7 +30,7 @@ export const registerCreateLatexDocumentTool = async (
 ): Promise<void> => {
   const toolName = "docwriter_create_latex_document";
   const toolDescription =
-    "Bootstraps a new, structured document from a template. Creates a new .tex file from a template, populating metadata placeholders. The full content of the template file, including all defined content blocks, is returned. Available templates: simple_report, ieee_article, research_report.";
+    "Bootstraps a new, structured LaTeX document from a specified template. This tool creates a new .tex file, populates metadata placeholders (title, author), and saves it to the server's data directory. It returns the document's ID and its full initial content, including all named content blocks, which is essential for making subsequent updates with other tools. This is the first step in any document creation workflow.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({

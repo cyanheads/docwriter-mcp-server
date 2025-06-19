@@ -1,6 +1,6 @@
 {
   "name": "docwriter-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "An MCP server for programmatic creation, modification, and compilation of structured LaTeX documents.",
   "main": "dist/index.js",
   "files": [
@@ -66,7 +66,9 @@
     "latex",
     "pdf",
     "document-generation",
-    "tex"
+    "tex",
+    "biber",
+    "bibliography"
   ],
   "author": "cyanheads <casey@caseyjhand.com>",
   "license": "Apache-2.0",

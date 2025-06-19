@@ -19,7 +19,7 @@ export const UpdateDocumentBlockInputSchema = z.object({
   documentId: z
     .string()
     .describe(
-      "The unique identifier for the document to be updated. This corresponds to the filename without the .tex extension.",
+      "The unique identifier for the document to be updated, corresponding to its filename without the .tex extension.",
     ),
   blocks: z
     .array(
@@ -27,17 +27,19 @@ export const UpdateDocumentBlockInputSchema = z.object({
         blockName: z
           .string()
           .describe(
-            "The name of the block to update (e.g., 'abstract', 'introduction'). Must match a defined block in the document.",
+            "The name of the block to update (e.g., 'abstract', 'introduction'). This must exactly match a block name defined in the document's template.",
           ),
         content: z
           .string()
           .describe(
-            "The new LaTeX content for the block. All content will be sanitized to prevent injection attacks.",
+            "The new, sanitized LaTeX content for the block. This will completely replace the existing content within the specified block.",
           ),
       }),
     )
     .min(1)
-    .describe("An array of one or more blocks to update in the document."),
+    .describe(
+      "An array of one or more block objects to update. This allows for atomic updates of multiple sections in a single operation.",
+    ),
 });
 
 /**

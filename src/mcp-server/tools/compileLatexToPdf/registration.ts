@@ -30,7 +30,7 @@ export const registerCompileLatexToPdfTool = async (
 ): Promise<void> => {
   const toolName = "docwriter_compile_latex_to_pdf";
   const toolDescription =
-    "Compiles a .tex document into a PDF. This is a potentially long-running operation that handles complex documents requiring multiple passes.";
+    "Compiles a specified .tex document into a PDF. This is the final step in the document creation process, producing the finished artifact. The tool intelligently handles complex documents that require multiple compilation passes (e.g., for table of contents, cross-references) and automatically runs Biber for bibliography processing if needed. It returns the path to the generated PDF and the full compilation log for debugging.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({

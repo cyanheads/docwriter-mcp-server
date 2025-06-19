@@ -30,7 +30,7 @@ export const registerUpdateDocumentBlockTool = async (
 ): Promise<void> => {
   const toolName = "docwriter_update_document_block";
   const toolDescription =
-    "Replaces the content of one or more named blocks (e.g., 'abstract', 'introduction') within an existing document. This is the preferred method for structured updates, allowing for multiple sections to be updated in a single, atomic operation. Understand the structure of the document before using this tool, as it requires knowledge of the block names defined in the document.";
+    "Atomically updates one or more named content blocks (e.g., 'abstract', 'introduction') within an existing LaTeX document. This is the standard and safest method for structured content modification, as it targets specific, predefined sections. To use this tool, you must know the `documentId` and the exact `blockName`(s) you intend to modify. All provided content is automatically sanitized to prevent LaTeX injection attacks.";
 
   const registrationContext: RequestContext =
     requestContextService.createRequestContext({

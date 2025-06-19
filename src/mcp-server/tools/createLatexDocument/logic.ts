@@ -11,13 +11,22 @@ import { z } from "zod";
 import { config, projectRootPath } from "../../../config/index.js";
 import { BaseErrorCode, McpError } from "../../../types-global/errors.js";
 import { logger, type RequestContext } from "../../../utils/index.js";
+import { sanitization } from "../../../utils/security/index.js";
 
 /**
  * Zod schema for validating input arguments for the `docwriter_create_latex_document` tool.
  */
 export const CreateLatexDocumentInputSchema = z.object({
-  title: z.string().describe("The main title for the document."),
-  author: z.string().describe("The name of the primary author."),
+  title: z
+    .string()
+    .describe(
+      "The main title for the document. This will be sanitized and placed in the 'title' placeholder of the template.",
+    ),
+  author: z
+    .string()
+    .describe(
+      "The name of the primary author. This will be sanitized and placed in the 'author' placeholder of the template.",
+    ),
   filename: z
     .string()
     .regex(
@@ -25,13 +34,13 @@ export const CreateLatexDocumentInputSchema = z.object({
       "Filename must be alphanumeric, with optional underscores or hyphens.",
     )
     .describe(
-      "The unique filename for the document, without the .tex extension (e.g., 'my-report'). Consider including the current date for versioning.",
+      "The unique, URL-safe filename for the document, without the .tex extension. This will be used as the documentId. Example: 'q1-research-summary-2024-06-19'",
     ),
   template: z
     .enum(["simple_report", "ieee_article", "research_report"])
     .default("simple_report")
     .describe(
-      "The base template to use. The tool will return the full content of the template file, including all defined content blocks so you have a complete understanding of the document structure.",
+      "The base template to use. The tool returns the full content of the created file, giving you a complete view of the document's structure and all its named content blocks for future updates.",
     ),
 });
 
@@ -107,10 +116,13 @@ export async function createLatexDocumentLogic(
     );
   }
 
-  // 3. Replace placeholders
+  // 3. Sanitize and replace placeholders
+  const sanitizedTitle = sanitization.sanitizeLatex(params.title);
+  const sanitizedAuthor = sanitization.sanitizeLatex(params.author);
+
   const documentContent = templateContent
-    .replace(/{{TITLE}}/g, params.title)
-    .replace(/{{AUTHOR}}/g, params.author);
+    .replace(/{{TITLE}}/g, sanitizedTitle)
+    .replace(/{{AUTHOR}}/g, sanitizedAuthor);
 
   // 4. Save the new content to a file
   try {

@@ -1,6 +1,6 @@
 # docwriter-mcp-server - Directory Structure
 
-Generated on: 2025-06-19 05:14:15
+Generated on: 2025-06-19 07:11:39
 
 ```
 docwriter-mcp-server
@@ -26,7 +26,6 @@ docwriter-mcp-server
 │   ├── config
 │   │   └── index.ts
 │   ├── mcp-server
-│   │   ├── resources
 │   │   ├── tools
 │   │   │   ├── compileLatexToPdf
 │   │   │   │   ├── index.ts
