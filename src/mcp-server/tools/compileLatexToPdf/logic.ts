@@ -49,7 +49,10 @@ export async function compileLatexToPdfLogic(
   params: CompileLatexToPdfInput,
   context: RequestContext,
 ): Promise<CompileLatexToPdfResponse> {
-  logger.debug("Processing compile_latex_to_pdf logic.", { ...context, toolInput: params });
+  logger.debug("Processing compile_latex_to_pdf logic.", {
+    ...context,
+    toolInput: params,
+  });
 
   const { documentId } = params;
   const docPath = path.join(config.docwriterDataPath, `${documentId}.tex`);
@@ -94,7 +97,10 @@ export async function compileLatexToPdfLogic(
   try {
     logContent = await fs.readFile(logPath, "utf-8");
   } catch (error) {
-    logger.warning(`Could not read log file for document '${documentId}'.`, context);
+    logger.warning(
+      `Could not read log file for document '${documentId}'.`,
+      context,
+    );
   }
 
   // 4. Clean up auxiliary files

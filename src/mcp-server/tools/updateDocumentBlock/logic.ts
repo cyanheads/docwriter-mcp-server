@@ -16,11 +16,28 @@ import { sanitization } from "../../../utils/security/index.js";
  * Zod schema for validating input arguments for the `docwriter_update_document_block` tool.
  */
 export const UpdateDocumentBlockInputSchema = z.object({
-  documentId: z.string().describe("The unique identifier for the document to be updated. This corresponds to the filename without the .tex extension."),
-  blocks: z.array(z.object({
-    blockName: z.string().describe("The name of the block to update (e.g., 'abstract', 'introduction'). Must match a defined block in the document."),
-    content: z.string().describe("The new LaTeX content for the block. All content will be sanitized to prevent injection attacks."),
-  })).min(1).describe("An array of one or more blocks to update in the document."),
+  documentId: z
+    .string()
+    .describe(
+      "The unique identifier for the document to be updated. This corresponds to the filename without the .tex extension.",
+    ),
+  blocks: z
+    .array(
+      z.object({
+        blockName: z
+          .string()
+          .describe(
+            "The name of the block to update (e.g., 'abstract', 'introduction'). Must match a defined block in the document.",
+          ),
+        content: z
+          .string()
+          .describe(
+            "The new LaTeX content for the block. All content will be sanitized to prevent injection attacks.",
+          ),
+      }),
+    )
+    .min(1)
+    .describe("An array of one or more blocks to update in the document."),
 });
 
 /**
@@ -50,7 +67,10 @@ export async function updateDocumentBlockLogic(
   params: UpdateDocumentBlockInput,
   context: RequestContext,
 ): Promise<UpdateDocumentBlockResponse> {
-  logger.debug("Processing update_document_block logic.", { ...context, toolInput: params });
+  logger.debug("Processing update_document_block logic.", {
+    ...context,
+    toolInput: params,
+  });
 
   const { documentId, blocks } = params;
   const docPath = path.join(config.docwriterDataPath, `${documentId}.tex`);
@@ -104,7 +124,10 @@ export async function updateDocumentBlockLogic(
   // 3. Save the updated content back to the file
   try {
     await fs.writeFile(docPath, updatedDocContent, "utf-8");
-    logger.info(`Blocks '${updatedBlocks.join(", ")}' in document '${documentId}' updated successfully.`, context);
+    logger.info(
+      `Blocks '${updatedBlocks.join(", ")}' in document '${documentId}' updated successfully.`,
+      context,
+    );
   } catch (error) {
     throw new McpError(
       BaseErrorCode.FILE_SYSTEM_ERROR,

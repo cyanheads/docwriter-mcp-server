@@ -41,13 +41,16 @@ export async function listLatexDocumentsLogic(
   params: ListLatexDocumentsInput,
   context: RequestContext,
 ): Promise<ListLatexDocumentsResponse> {
-  logger.debug("Processing list_latex_documents logic.", { ...context, toolInput: params });
+  logger.debug("Processing list_latex_documents logic.", {
+    ...context,
+    toolInput: params,
+  });
 
   try {
     const files = await fs.readdir(config.docwriterDataPath);
     const documents = files
-      .filter(file => file.endsWith(".tex"))
-      .map(file => file.replace(".tex", ""));
+      .filter((file) => file.endsWith(".tex"))
+      .map((file) => file.replace(".tex", ""));
 
     const toolResponse: ListLatexDocumentsResponse = {
       documents,

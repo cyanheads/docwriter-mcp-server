@@ -62,7 +62,9 @@ export const registerSearchAndReplaceTool = async (
           try {
             const result = await searchAndReplaceLogic(params, handlerContext);
             return {
-              content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+              content: [
+                { type: "text", text: JSON.stringify(result, null, 2) },
+              ],
               isError: false,
             };
           } catch (error) {
@@ -100,7 +102,10 @@ export const registerSearchAndReplaceTool = async (
         },
       );
 
-      logger.info(`Tool '${toolName}' registered successfully.`, registrationContext);
+      logger.info(
+        `Tool '${toolName}' registered successfully.`,
+        registrationContext,
+      );
     },
     {
       operation: `RegisteringTool_${toolName}`,

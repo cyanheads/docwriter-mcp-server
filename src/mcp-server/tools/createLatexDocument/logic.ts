@@ -62,7 +62,10 @@ export async function createLatexDocumentLogic(
   params: CreateLatexDocumentInput,
   context: RequestContext,
 ): Promise<CreateLatexDocumentResponse> {
-  logger.debug("Processing create_latex_document logic.", { ...context, toolInput: params });
+  logger.debug("Processing create_latex_document logic.", {
+    ...context,
+    toolInput: params,
+  });
 
   const documentId = params.filename;
   const docPath = path.join(config.docwriterDataPath, `${documentId}.tex`);
@@ -112,7 +115,10 @@ export async function createLatexDocumentLogic(
   // 4. Save the new content to a file
   try {
     await fs.writeFile(docPath, documentContent, "utf-8");
-    logger.info(`Document '${documentId}' created successfully at ${docPath}`, context);
+    logger.info(
+      `Document '${documentId}' created successfully at ${docPath}`,
+      context,
+    );
   } catch (error) {
     throw new McpError(
       BaseErrorCode.FILE_SYSTEM_ERROR,

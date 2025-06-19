@@ -85,10 +85,17 @@ function startHttpServerWithRetry(
   return new Promise(async (resolve, reject) => {
     for (let i = 0; i <= maxRetries; i++) {
       const currentPort = initialPort + i;
-      const attemptContext = { ...startContext, port: currentPort, attempt: i + 1 };
+      const attemptContext = {
+        ...startContext,
+        port: currentPort,
+        attempt: i + 1,
+      };
 
       if (await isPortInUse(currentPort, host, attemptContext)) {
-        logger.warning(`Port ${currentPort} is in use, retrying...`, attemptContext);
+        logger.warning(
+          `Port ${currentPort} is in use, retrying...`,
+          attemptContext,
+        );
         continue;
       }
 
@@ -97,7 +104,10 @@ function startHttpServerWithRetry(
           { fetch: app.fetch, port: currentPort, hostname: host },
           (info) => {
             const serverAddress = `http://${info.address}:${info.port}${MCP_ENDPOINT_PATH}`;
-            logger.info(`HTTP transport listening at ${serverAddress}`, { ...attemptContext, address: serverAddress });
+            logger.info(`HTTP transport listening at ${serverAddress}`, {
+              ...attemptContext,
+              address: serverAddress,
+            });
             if (process.stdout.isTTY) {
               console.log(`\n🚀 MCP Server running at: ${serverAddress}\n`);
             }
@@ -128,22 +138,35 @@ export async function startHttpTransport(
 
   setInterval(() => {
     const now = Date.now();
-    const gcContext = requestContextService.createRequestContext({ operation: "SessionGarbageCollector" });
+    const gcContext = requestContextService.createRequestContext({
+      operation: "SessionGarbageCollector",
+    });
     for (const sessionId in sessionActivity) {
       if (now - sessionActivity[sessionId] > SESSION_TIMEOUT_MS) {
-        logger.info(`Session ${sessionId} timed out. Cleaning up.`, { ...gcContext, sessionId });
+        logger.info(`Session ${sessionId} timed out. Cleaning up.`, {
+          ...gcContext,
+          sessionId,
+        });
         httpTransports[sessionId]?.close();
         delete sessionActivity[sessionId];
       }
     }
   }, SESSION_GC_INTERVAL_MS);
 
-  app.use("*", cors({
-    origin: config.mcpAllowedOrigins || [],
-    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Mcp-Session-Id", "Last-Event-ID", "Authorization"],
-    credentials: true,
-  }));
+  app.use(
+    "*",
+    cors({
+      origin: config.mcpAllowedOrigins || [],
+      allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+      allowHeaders: [
+        "Content-Type",
+        "Mcp-Session-Id",
+        "Last-Event-ID",
+        "Authorization",
+      ],
+      credentials: true,
+    }),
+  );
 
   app.use("*", async (c, next) => {
     c.res.headers.set("X-Content-Type-Options", "nosniff");
@@ -151,18 +174,28 @@ export async function startHttpTransport(
   });
 
   app.use(MCP_ENDPOINT_PATH, async (c, next) => {
-    const clientIp = c.req.header("x-forwarded-for")?.split(",")[0].trim() || "unknown_ip";
-    const context = requestContextService.createRequestContext({ operation: "httpRateLimitCheck", ipAddress: clientIp });
+    const clientIp =
+      c.req.header("x-forwarded-for")?.split(",")[0].trim() || "unknown_ip";
+    const context = requestContextService.createRequestContext({
+      operation: "httpRateLimitCheck",
+      ipAddress: clientIp,
+    });
     try {
       rateLimiter.check(clientIp, context);
       await next();
     } catch (error) {
-      const handledError = ErrorHandler.handleError(error, { operation: "rateLimitMiddleware", context });
-      return c.json({
-        jsonrpc: "2.0",
-        error: { code: -32000, message: handledError.message },
-        id: (await c.req.json().catch(() => ({})))?.id || null,
-      }, 429);
+      const handledError = ErrorHandler.handleError(error, {
+        operation: "rateLimitMiddleware",
+        context,
+      });
+      return c.json(
+        {
+          jsonrpc: "2.0",
+          error: { code: -32000, message: handledError.message },
+          id: (await c.req.json().catch(() => ({})))?.id || null,
+        },
+        429,
+      );
     }
   });
 
@@ -173,7 +206,10 @@ export async function startHttpTransport(
   }
 
   app.post(MCP_ENDPOINT_PATH, async (c) => {
-    const postContext = requestContextService.createRequestContext({ ...transportContext, operation: "handlePost" });
+    const postContext = requestContextService.createRequestContext({
+      ...transportContext,
+      operation: "handlePost",
+    });
     let transport: StreamableHTTPServerTransport | undefined;
     try {
       const body = await c.req.json();
@@ -183,7 +219,10 @@ export async function startHttpTransport(
 
       if (isInitializeRequest(body)) {
         if (transport) {
-          logger.warning("Re-initializing existing session.", { ...postContext, sessionId });
+          logger.warning("Re-initializing existing session.", {
+            ...postContext,
+            sessionId,
+          });
           await transport.close();
         }
         transport = new StreamableHTTPServerTransport({
@@ -191,7 +230,10 @@ export async function startHttpTransport(
           onsessioninitialized: (newId) => {
             httpTransports[newId] = transport!;
             sessionActivity[newId] = Date.now();
-            logger.info(`HTTP Session created: ${newId}`, { ...postContext, newSessionId: newId });
+            logger.info(`HTTP Session created: ${newId}`, {
+              ...postContext,
+              newSessionId: newId,
+            });
           },
         });
         transport.onclose = () => {
@@ -199,50 +241,90 @@ export async function startHttpTransport(
           if (closedSessionId) {
             delete httpTransports[closedSessionId];
             delete sessionActivity[closedSessionId];
-            logger.info(`HTTP Session closed: ${closedSessionId}`, { ...postContext, closedSessionId });
+            logger.info(`HTTP Session closed: ${closedSessionId}`, {
+              ...postContext,
+              closedSessionId,
+            });
           }
         };
         const server = await createServerInstanceFn();
         await server.connect(transport);
       } else if (!transport) {
-        throw new McpError(BaseErrorCode.NOT_FOUND, "Invalid or expired session ID.");
+        throw new McpError(
+          BaseErrorCode.NOT_FOUND,
+          "Invalid or expired session ID.",
+        );
       }
 
-      return await transport.handleRequest(c.env.incoming, c.env.outgoing, body);
+      return await transport.handleRequest(
+        c.env.incoming,
+        c.env.outgoing,
+        body,
+      );
     } catch (err) {
-      const handledError = ErrorHandler.handleError(err, { operation: "handlePost", context: postContext });
+      const handledError = ErrorHandler.handleError(err, {
+        operation: "handlePost",
+        context: postContext,
+      });
       const requestId = (await c.req.json().catch(() => ({})))?.id || null;
-      return c.json({
-        jsonrpc: "2.0",
-        error: { code: -32603, message: handledError.message },
-        id: requestId,
-      }, handledError instanceof McpError && handledError.code === BaseErrorCode.NOT_FOUND ? 404 : 500);
+      return c.json(
+        {
+          jsonrpc: "2.0",
+          error: { code: -32603, message: handledError.message },
+          id: requestId,
+        },
+        handledError instanceof McpError &&
+          handledError.code === BaseErrorCode.NOT_FOUND
+          ? 404
+          : 500,
+      );
     }
   });
 
   const handleSessionReq = async (c: Context<{ Bindings: HonoBindings }>) => {
     const method = c.req.method;
-    const sessionReqContext = requestContextService.createRequestContext({ ...transportContext, operation: `handle${method}` });
+    const sessionReqContext = requestContextService.createRequestContext({
+      ...transportContext,
+      operation: `handle${method}`,
+    });
     try {
       const sessionId = c.req.header("mcp-session-id");
       const transport = sessionId ? httpTransports[sessionId] : undefined;
       if (!transport) {
-        throw new McpError(BaseErrorCode.NOT_FOUND, "Session not found or expired.");
+        throw new McpError(
+          BaseErrorCode.NOT_FOUND,
+          "Session not found or expired.",
+        );
       }
       if (sessionId) sessionActivity[sessionId] = Date.now();
       return await transport.handleRequest(c.env.incoming, c.env.outgoing);
     } catch (err) {
-      const handledError = ErrorHandler.handleError(err, { operation: `handle${method}`, context: sessionReqContext });
-      return c.json({
-        jsonrpc: "2.0",
-        error: { code: -32603, message: handledError.message },
-        id: null,
-      }, handledError instanceof McpError && handledError.code === BaseErrorCode.NOT_FOUND ? 404 : 500);
+      const handledError = ErrorHandler.handleError(err, {
+        operation: `handle${method}`,
+        context: sessionReqContext,
+      });
+      return c.json(
+        {
+          jsonrpc: "2.0",
+          error: { code: -32603, message: handledError.message },
+          id: null,
+        },
+        handledError instanceof McpError &&
+          handledError.code === BaseErrorCode.NOT_FOUND
+          ? 404
+          : 500,
+      );
     }
   };
 
   app.get(MCP_ENDPOINT_PATH, handleSessionReq);
   app.delete(MCP_ENDPOINT_PATH, handleSessionReq);
 
-  return startHttpServerWithRetry(app, HTTP_PORT, HTTP_HOST, MAX_PORT_RETRIES, transportContext);
+  return startHttpServerWithRetry(
+    app,
+    HTTP_PORT,
+    HTTP_HOST,
+    MAX_PORT_RETRIES,
+    transportContext,
+  );
 }

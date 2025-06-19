@@ -60,9 +60,14 @@ export const registerCreateLatexDocumentTool = async (
             });
 
           try {
-            const result = await createLatexDocumentLogic(params, handlerContext);
+            const result = await createLatexDocumentLogic(
+              params,
+              handlerContext,
+            );
             return {
-              content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+              content: [
+                { type: "text", text: JSON.stringify(result, null, 2) },
+              ],
               isError: false,
             };
           } catch (error) {
@@ -100,7 +105,10 @@ export const registerCreateLatexDocumentTool = async (
         },
       );
 
-      logger.info(`Tool '${toolName}' registered successfully.`, registrationContext);
+      logger.info(
+        `Tool '${toolName}' registered successfully.`,
+        registrationContext,
+      );
     },
     {
       operation: `RegisteringTool_${toolName}`,

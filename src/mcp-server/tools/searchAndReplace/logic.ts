@@ -18,7 +18,9 @@ import { sanitization } from "../../../utils/security/index.js";
 export const SearchAndReplaceInputSchema = z.object({
   documentId: z.string().describe("The ID of the document to update."),
   searchTerm: z.string().describe("The text to search for."),
-  replacementText: z.string().describe("The text to replace the search term with."),
+  replacementText: z
+    .string()
+    .describe("The text to replace the search term with."),
 });
 
 /**
@@ -46,7 +48,10 @@ export async function searchAndReplaceLogic(
   params: SearchAndReplaceInput,
   context: RequestContext,
 ): Promise<SearchAndReplaceResponse> {
-  logger.debug("Processing search_and_replace logic.", { ...context, toolInput: params });
+  logger.debug("Processing search_and_replace logic.", {
+    ...context,
+    toolInput: params,
+  });
 
   const { documentId, searchTerm, replacementText } = params;
   const docPath = path.join(config.docwriterDataPath, `${documentId}.tex`);
@@ -79,7 +84,10 @@ export async function searchAndReplaceLogic(
   const updatedContent = docContent.replace(regex, sanitizedReplacement);
 
   if (occurrences === 0) {
-    logger.warning(`Search term "${searchTerm}" not found in document '${documentId}'.`, context);
+    logger.warning(
+      `Search term "${searchTerm}" not found in document '${documentId}'.`,
+      context,
+    );
   }
 
   // 4. Save the updated content back to the file
