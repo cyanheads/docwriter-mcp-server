@@ -56,9 +56,9 @@ const runProcess = (
     const process = spawn(command, args, { cwd });
     let stdout = "";
     let stderr = "";
-    process.stdout.on("data", data => (stdout += data.toString()));
-    process.stderr.on("data", data => (stderr += data.toString()));
-    process.on("close", code => {
+    process.stdout.on("data", (data) => (stdout += data.toString()));
+    process.stderr.on("data", (data) => (stderr += data.toString()));
+    process.on("close", (code) => {
       if (code === 0) {
         resolve();
       } else {
@@ -69,7 +69,7 @@ const runProcess = (
         );
       }
     });
-    process.on("error", err => reject(err));
+    process.on("error", (err) => reject(err));
   });
 };
 
@@ -110,8 +110,9 @@ export async function compileLatexToPdfLogic(
   const bibBlockRegex =
     /%% -- BLOCK: bibliography -- %%(.*?)%% -- ENDBLOCK: bibliography -- %%/s;
   const bibMatch = docContent.match(bibBlockRegex);
-  const hasBibliography =
-    bibMatch ? bibMatch[1].trim().replace(/%.*/g, "").trim() !== "" : false;
+  const hasBibliography = bibMatch
+    ? bibMatch[1].trim().replace(/%.*/g, "").trim() !== ""
+    : false;
 
   if (hasBibliography) {
     const bibContent = bibMatch![1];
@@ -148,10 +149,7 @@ ${bibContent}
       await runProcess("lualatex", lualatexArgs, config.docwriterDataPath);
       await runProcess("lualatex", lualatexArgs, config.docwriterDataPath);
     } else {
-      logger.info(
-        `Running standard compilation for ${documentId}.`,
-        context,
-      );
+      logger.info(`Running standard compilation for ${documentId}.`, context);
       await runProcess("lualatex", lualatexArgs, config.docwriterDataPath);
       await runProcess("lualatex", lualatexArgs, config.docwriterDataPath);
     }
