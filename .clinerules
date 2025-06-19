@@ -1,7 +1,7 @@
 # docwriter-mcp-server: Developer Guide & Architectural Standards
 
 **Effective Date:** 2025-06-18
-**Version:** 1.0
+**Version:** 1.1
 
 This document mandates the development practices, architectural patterns, and operational procedures for the `docwriter-mcp-server`. It is the authoritative guide for ensuring code quality, consistency, and security. All development must adhere to these standards.
 
@@ -11,19 +11,18 @@ The `docwriter-mcp-server` is designed for the programmatic creation and managem
 
 ### 1. Documents as Files on the Local Filesystem
 
--   **State Management**: The primary state of the application is the collection of `.tex` documents stored on the local filesystem. Each document is a distinct file.
--   **Data Path**: All document files and compiled outputs **must** be stored within the directory specified by the `DOCWRITER_DATA_PATH` environment variable. The default path is `./data`.
--   **Document Identification**: A document's unique identifier (`documentId`) corresponds directly to its filename (e.g., `xyz-123.tex`).
+- **State Management**: The primary state of the application is the collection of `.tex` documents stored on the local filesystem. Each document is a distinct file.
+- **Data Path**: All document files and compiled outputs **must** be stored within the directory specified by the `DOCWRITER_DATA_PATH` environment variable. The default path is `./data`.
+- **Document Identification**: A document's unique identifier (`documentId`) corresponds directly to its filename (e.g., `my-report` for `my-report.tex`).
 
 ### 2. Operations as Stateless Tools
 
--   **Separation of Concerns**: All actions that create, modify, or compile documents are implemented as stateless MCP Tools. These tools operate on the document files but do not hold state themselves.
--   **Tool Responsibility**: Each tool is responsible for a single, well-defined operation (e.g., creating a document, updating a content block).
+- **Separation of Concerns**: All actions that create, modify, or compile documents are implemented as stateless MCP Tools. These tools operate on the document files but do not hold state themselves.
+- **Tool Responsibility**: Each tool is responsible for a single, well-defined operation (e.g., creating a document, updating a content block).
 
 ### 3. Environment and Dependencies
 
--   **LaTeX Distribution**: The server's runtime environment (e.g., local machine, Docker container) **must** have a full TeX Live distribution installed, specifically including the `pdflatex` command.
--   **System Libraries**: The environment must also include any necessary libraries for diffing/patching and all required LaTeX class files (e.g., `IEEEtran.cls`).
+- **LaTeX Distribution**: The server's runtime environment (e.g., local machine, Docker container) **must** have a full TeX Live distribution installed, specifically including the `pdflatex` command.
 
 ## II. Tool Development Workflow
 
@@ -33,65 +32,131 @@ This section defines the mandatory workflow for creating and modifying tools wit
 
 Each tool must follow the established file structure within `src/mcp-server/tools/`. The primary responsibilities are:
 
--   **`logic.ts`**: Contains the core business logic for the tool. It defines the Zod input schema, exports all necessary TypeScript types, and implements the main logic function. This file interacts directly with the filesystem.
--   **`registration.ts`**: Registers the tool with the MCP server. It imports from `logic.ts`, handles `try...catch` blocks for error management, and formats the final `CallToolResult`.
+- **`logic.ts`**: Contains the core business logic for the tool. It defines the Zod input schema, exports all necessary TypeScript types, and implements the main logic function. This file interacts directly with the filesystem and core utilities.
+- **`registration.ts`**: Registers the tool with the MCP server. It imports from `logic.ts`, handles `try...catch` blocks for error management using the `ErrorHandler`, and formats the final `CallToolResult`.
 
 ### B. Key Tool Specifications
 
 Development must align with the established contracts for the five core tools:
 
 1.  **`docwriter_create_latex_document`**:
-    -   **Purpose**: Bootstraps a new `.tex` document from a template (`simple_report` or `ieee_article`).
-    -   **Logic**: Reads a template from the `/templates` directory, replaces `{{TITLE}}` and `{{AUTHOR}}` placeholders, and saves the result to a new file in the data path.
-    -   **Output**: Must return the full content of the newly created `.tex` file.
+
+    - **Purpose**: Bootstraps a new `.tex` document from a template (`simple_report`, `ieee_article`, `research_report`).
+    - **Logic**: Reads a template from the `/templates` directory, replaces `{{TITLE}}` and `{{AUTHOR}}` placeholders, and saves the result to a new file in the data path.
+    - **Output**: Must return the full content of the newly created `.tex` file.
 
 2.  **`docwriter_update_document_block`**:
-    -   **Purpose**: Updates a specific, named content block within a document. This is the standard method for structured content updates.
-    -   **Logic**: Reads the document, uses regex to locate the `%% -- BLOCK: ... -- %%` and `%% -- ENDBLOCK: ... -- %%` markers, and replaces the content between them.
-    -   **Security**: **MUST** pass the new content through the LaTeX sanitization utility before writing to the file.
 
-3.  **`docwriter_apply_latex_diff`**:
-    -   **Purpose**: Applies a fine-grained patch to a document using the Unified Diff Format.
-    -   **Logic**: Reads the document, applies the patch using a library like `diff-match-patch`, and saves the result. The patch must apply cleanly.
+    - **Purpose**: Updates a specific, named content block within a document. This is the standard method for structured content updates.
+    - **Logic**: Reads the document, uses regex to locate the `%% -- BLOCK: ... -- %%` and `%% -- ENDBLOCK: ... -- %%` markers, and replaces the content between them.
+    - **Security**: **MUST** pass the new content through the `sanitization.sanitizeLatex` utility before writing to the file.
+
+3.  **`docwriter_search_and_replace`**:
+
+    - **Purpose**: Performs a simple, global search and replace for text within a document.
+    - **Logic**: Reads the document, performs a regex-based replacement, and saves the result.
+    - **Security**: **MUST** pass the `replacementText` through the `sanitization.sanitizeLatex` utility.
 
 4.  **`docwriter_compile_latex_to_pdf`**:
-    -   **Purpose**: Compiles a `.tex` file into a PDF.
-    -   **Logic**: Executes `pdflatex` on the target document. The process must run multiple times (2-3 passes) to resolve all cross-references. It must capture logs for debugging and clean up auxiliary files (`.aux`, `.log`, etc.) upon success.
+
+    - **Purpose**: Compiles a `.tex` file into a PDF.
+    - **Logic**: Executes `pdflatex` on the target document. The process must run multiple times (2-3 passes) to resolve all cross-references. It must capture logs for debugging and clean up auxiliary files (`.aux`, `.log`, etc.) upon success.
 
 5.  **`docwriter_list_latex_documents`**:
-    -   **Purpose**: Lists all available documents.
-    -   **Logic**: Reads the contents of the `DOCWRITER_DATA_PATH` directory and returns a list of all filenames ending in `.tex`, with the extension removed.
+    - **Purpose**: Lists all available documents.
+    - **Logic**: Reads the contents of the `DOCWRITER_DATA_PATH` directory and returns a list of all filenames ending in `.tex`, with the extension removed.
 
-## III. Security Mandates
+## III. Core Utilities (`src/utils/`)
 
-Security is a critical, non-negotiable aspect of this server due to its direct interaction with the filesystem and shell commands.
+Consistent use of the core utilities is mandatory for logging, error handling, and security.
+
+### 1. Logging (`src/utils/internal/logger.ts`)
+
+- **Purpose**: Provides a singleton `logger` instance (wrapping Winston) for structured, leveled logging.
+- **Usage**: Always pass a `RequestContext` object as the second argument to any log method to ensure traceability.
+
+  ```typescript
+  import { logger, RequestContext } from "src/utils";
+
+  // Inside a function...
+  const context: RequestContext = requestContextService.createRequestContext({
+    operation: "MyFunction",
+    documentId: "my-doc",
+  });
+  logger.info("Starting operation.", context);
+  ```
+
+### 2. Error Handling (`src/utils/internal/errorHandler.ts`)
+
+- **Purpose**: Provides the `ErrorHandler` class for consistent error processing, and the `McpError` class for standardized, coded errors.
+- **Pattern**: All tool logic functions should throw `McpError` for expected failures. The `registration.ts` file for each tool is responsible for catching all errors and using `ErrorHandler.handleError` to format them for the client.
+
+  ```typescript
+  // In logic.ts
+  import { McpError, BaseErrorCode } from "src/types-global/errors.ts";
+  if (!documentExists) {
+    throw new McpError(BaseErrorCode.NOT_FOUND, `Document not found.`);
+  }
+
+  // In registration.ts
+  import { ErrorHandler } from "src/utils";
+  try {
+    // ... call logic function
+  } catch (error) {
+    const handledError = ErrorHandler.handleError(error, {
+      /* options */
+    });
+    // return formatted error to client
+  }
+  ```
+
+### 3. Request Context (`src/utils/internal/requestContext.ts`)
+
+- **Purpose**: The `requestContextService` creates standardized context objects for logging and tracing.
+- **Usage**: Every operation, especially within tool handlers, should begin by creating a `RequestContext`. This context should be passed to all subsequent logging calls and error handling.
+
+  ```typescript
+  import { requestContextService } from "src/utils";
+
+  const handlerContext = requestContextService.createRequestContext({
+    operation: "HandleToolRequest",
+    toolName: "my_tool",
+    // ... other relevant details
+  });
+  ```
+
+## IV. Security Mandates
+
+Security is a critical, non-negotiable aspect of this server.
 
 ### 1. LaTeX Input Sanitization (CRITICAL)
 
--   **Threat Model**: Maliciously crafted LaTeX input can be used to read arbitrary files from the server (e.g., `\input{/etc/passwd}`) or execute arbitrary shell commands (if `\write18` is enabled).
--   **Mandatory Action**: All user-provided content that will be written into a `.tex` file **must** be processed by the `sanitizeLatex` method from the singleton instance located at `src/utils/security/sanitization.ts`.
--   **Implementation**: To use the sanitizer, import the `sanitization` singleton and call the `sanitizeLatex` method on any user-provided string that will be inserted into a LaTeX document.
+- **File**: `src/utils/security/sanitization.ts`
+- **Threat Model**: Maliciously crafted LaTeX input can be used to read arbitrary files from the server (e.g., `\input{/etc/passwd}`) or execute arbitrary shell commands (if `\write18` is enabled).
+- **Mandatory Action**: All user-provided content that will be written into a `.tex` file **must** be processed by the `sanitizeLatex` method from the `sanitization` singleton.
+- **Implementation**:
 
-    ```typescript
-    import { sanitization } from "src/utils/security";
+  ```typescript
+  import { sanitization } from "src/utils/security";
 
-    // ... inside a tool's logic function
-    const unsafeContent = "user-provided string with potential LaTeX commands";
-    const safeContent = sanitization.sanitizeLatex(unsafeContent);
-    // Use safeContent when writing to a .tex file
-    ```
--   **Responsibility**: The developer implementing or modifying a tool that accepts content (e.g., `docwriter_update_document_block`) is responsible for ensuring this sanitization is correctly applied. This is a required step for all code reviews.
+  // ... inside a tool's logic function
+  const unsafeContent = "user-provided string with potential LaTeX commands";
+  const safeContent = sanitization.sanitizeLatex(unsafeContent);
+  // Use safeContent when writing to a .tex file
+  ```
+
+- **Responsibility**: The developer implementing or modifying a tool that accepts content (e.g., `docwriter_update_document_block`) is responsible for ensuring this sanitization is correctly applied. This is a required step for all code reviews.
 
 ### 2. Filesystem and Command Execution
 
--   **Permissions**: The server operates with the permissions of the user running the process. Ensure the process is run with the minimum necessary privileges.
--   **Command Injection**: When executing `pdflatex` or other shell commands, ensure that all arguments (especially filenames) are properly escaped to prevent command injection vulnerabilities.
+- **Permissions**: The server operates with the permissions of the user running the process. Ensure the process is run with the minimum necessary privileges.
+- **Command Injection**: When executing `pdflatex` or other shell commands, ensure that all arguments (especially filenames) are properly escaped to prevent command injection vulnerabilities. The current implementation correctly separates the command and arguments, which is a safe practice.
 
-## IV. Code Quality and Documentation
+## V. Code Quality and Documentation
 
--   **JSDoc**: Every file must start with a `@fileoverview` and `@module` block. All exported functions, types, and schemas must have clear JSDoc comments.
--   **Schema Descriptions**: All fields within Zod schemas **must** include a `.describe()` call to provide clear, agent-facing documentation.
--   **Configuration**: All configuration, especially `DOCWRITER_DATA_PATH`, must be loaded from environment variables using the central `config` module. Do not hardcode paths or secrets.
--   **Formatting**: All code must be formatted using Prettier (`npm run format`) before committing.
+- **JSDoc**: Every file must start with a `@fileoverview` and `@module` block. All exported functions, types, and schemas must have clear JSDoc comments.
+- **Schema Descriptions**: All fields within Zod schemas **must** include a `.describe()` call to provide clear, agent-facing documentation.
+- **Configuration**: All configuration, especially `DOCWRITER_DATA_PATH`, must be loaded from environment variables using the central `config` module (`src/config/index.ts`). Do not hardcode paths or secrets.
+- **Formatting**: All code must be formatted using Prettier (`npm run format`) before committing.
 
 This guide is the single source of truth for development standards. All code reviews will be conducted against these principles.

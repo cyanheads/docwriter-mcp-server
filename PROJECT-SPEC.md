@@ -50,13 +50,13 @@ Bootstraps a new, structured document from a template.
       .string()
       .optional()
       .describe(
-        "An optional unique ID for the document. If not provided, a UUID will be generated."
+        "An optional unique ID for the document. If not provided, a UUID will be generated.",
       ),
     template: z
       .enum(["simple_report", "ieee_article"])
       .default("simple_report")
       .describe(
-        "The base template to use. The tool will return the full content of the template file, including all defined content blocks so you have a complete document structure."
+        "The base template to use. The tool will return the full content of the template file, including all defined content blocks so you have a complete document structure.",
       ),
   });
   ```
@@ -118,7 +118,7 @@ Applies a structured patch to a document for advanced modifications.
     diff: z
       .string()
       .describe(
-        "A diff patch in the Unified Diff Format to apply to the document content."
+        "A diff patch in the Unified Diff Format to apply to the document content.",
       ),
   });
   ```

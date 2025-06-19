@@ -1,4 +1,4 @@
-# Docwriter MCP Server 📄✍️
+# docwriter-mcp-server 📄✍️
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-^5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol SDK](https://img.shields.io/badge/MCP%20SDK-^1.13.0-green.svg)](https://github.com/modelcontextprotocol/typescript-sdk)
@@ -9,103 +9,154 @@
 
 **A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for programmatic creation, modification, and compilation of structured LaTeX documents.**
 
-This server provides a suite of tools for an AI agent or other MCP client to manage the lifecycle of a document on the local filesystem, from bootstrapping from a template to applying fine-grained updates and compiling the final PDF output.
+This server provides a suite of tools for an AI agent or other MCP client to manage the lifecycle of a document on the local filesystem, from bootstrapping from a template to applying structured updates and compiling the final PDF output. It is built on the robust `cyanheads/mcp-ts-template`.
 
-## 📋 Table of Contents
+## 🚀 Core Capabilities: Document Tools 🛠️
 
-- [✨ Key Features](#-key-features)
-- [🏁 Quick Start](#-quick-start)
-- [⚙️ Configuration](#️-configuration)
-- [🏗️ Project Structure](#️-project-structure)
-- [🧩 Tool Specifications](#-tool-specifications)
-- [📜 License](#-license)
+This server equips your AI with specialized tools to create and manage LaTeX documents:
 
-## ✨ Key Features
+| Tool Name                                                                        | Description                                                 | Key Features                                                                                                                                                   |
+| :------------------------------------------------------------------------------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`docwriter_create_latex_document`](./src/mcp-server/tools/createLatexDocument/) | Creates a new `.tex` file from a template.                  | - Bootstrap from `simple_report`, `ieee_article`, or `research_report` templates.<br/>- Populates title and author metadata.                                   |
+| [`docwriter_update_document_block`](./src/mcp-server/tools/updateDocumentBlock/) | Updates one or more named content blocks within a document. | - Atomically updates multiple sections (e.g., `abstract`, `introduction`).<br/>- Preserves document structure.<br/>- **Securely sanitizes all input content.** |
+| [`docwriter_search_and_replace`](./src/mcp-server/tools/searchAndReplace/)       | Performs a simple, global search and replace for text.      | - Useful for quick, non-structural text changes.<br/>- Sanitizes replacement text.                                                                             |
+| [`docwriter_compile_latex_to_pdf`](./src/mcp-server/tools/compileLatexToPdf/)    | Compiles a `.tex` document into a PDF.                      | - Uses `pdflatex` with multiple passes to resolve cross-references.<br/>- Returns compilation logs for debugging.                                              |
+| [`docwriter_list_latex_documents`](./src/mcp-server/tools/listLatexDocuments/)   | Retrieves a list of all available documents.                | - Scans the data directory for all `.tex` files.                                                                                                               |
 
-| Feature Area | Description |
-| :--- | :--- |
-| **📄 Document Creation** | Bootstrap new `.tex` documents from predefined templates (`simple_report`, `ieee_article`). |
-| **📝 Block-Based Updates** | Safely update structured content within named blocks (e.g., `abstract`, `introduction`). |
-| **⚙️ Advanced Patching** | Apply fine-grained changes using standard `diff` patches for precise control. |
-| **🔄 PDF Compilation** | Compile `.tex` files into PDFs, with multi-pass support for resolving cross-references. |
-| **🔐 Security** | Includes input sanitization to mitigate LaTeX injection vulnerabilities. |
-| **📂 Filesystem Backend** | Stores and manages all documents and compiled outputs on the local filesystem. |
+---
 
-## 🏁 Quick Start
+## Table of Contents
 
-### 📦 Installation
+| [Overview](#overview)           | [Features](#features)                   | [Installation](#installation) |
+| :------------------------------ | :-------------------------------------- | :---------------------------- |
+| [Configuration](#configuration) | [Project Structure](#project-structure) | [Development](#development)   |
+| [License](#license)             |                                         |                               |
 
-1.  **Clone the repository:**
+## Overview
+
+The `docwriter-mcp-server` acts as a specialized backend, allowing MCP-compatible clients—such as AI agents, IDE extensions, or automated workflows—to programmatically generate and manage professional-quality LaTeX documents.
+
+Instead of manual document preparation, your tools can leverage this server to:
+
+- **Automate Report Generation**: Create consistent, templated reports, articles, or papers.
+- **Dynamically Insert Content**: Populate documents with data, analysis, or text generated by an AI.
+- **Ensure Document Quality**: Compile and verify documents as part of a CI/CD pipeline.
+- **Integrate with AI Workflows**: Enable LLMs to create and edit complex documents as part of a larger task.
+
+> **Developer Note**: This repository includes a [.clinerules](.clinerules) file that serves as a developer cheat sheet for your LLM coding agent with quick reference for the codebase patterns, file locations, and code snippets.
+
+## Features
+
+### Core Utilities
+
+Leverages the robust utilities provided by the `mcp-ts-template`:
+
+- **Logging**: Structured, configurable logging with sensitive data redaction.
+- **Error Handling**: Centralized error processing and standardized error types (`McpError`).
+- **Configuration**: Type-safe environment variable loading with Zod validation.
+- **Input Sanitization**: Strong security focus with utilities for sanitizing LaTeX, HTML, and file paths.
+- **HTTP Transport**: High-performance HTTP server using **Hono**, featuring session management, CORS, and rate limiting.
+- **Authentication**: Robust authentication layer supporting JWT and OAuth 2.1.
+
+### Document Generation
+
+- **Template-Based Creation**: Start documents from `simple_report`, `ieee_article`, or `research_report` templates.
+- **Structured Updates**: Safely modify content within `%% -- BLOCK: ... -- %%` markers.
+- **Secure Compilation**: Executes `pdflatex` in a sandboxed manner, cleaning up auxiliary files.
+- **Filesystem Backend**: All documents and outputs are stored and managed on the local filesystem in a configurable data directory.
+
+## Installation
+
+### Prerequisites
+
+- [Node.js (>=20.0.0)](https://nodejs.org/)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+- **A full TeX Live distribution** (or equivalent like MiKTeX). The `pdflatex` command must be in the system's `PATH`.
+
+### Install from Source
+
+1.  Clone the repository:
 
     ```bash
     git clone https://github.com/cyanheads/docwriter-mcp-server.git
     cd docwriter-mcp-server
     ```
 
-2.  **Install dependencies:**
+2.  Install dependencies:
 
     ```bash
     npm install
     ```
 
-3.  **Install LaTeX:**
-    This server requires a working LaTeX distribution (like TeX Live, MiKTeX) to be installed on the system where the server runs. The `pdflatex` command must be available in the system's PATH.
-
-4.  **Build the project:**
+3.  Build the project:
     ```bash
     npm run build
     ```
 
-### 🚀 Usage
+## Configuration
 
--   **Via Stdio (Default):**
-    ```bash
-    npm start
-    ```
--   **Via Streamable HTTP:**
-    ```bash
-    npm run start:http
-    ```
+Configure the server using environment variables in a `.env` file.
 
-This starts a **Streamable HTTP** server (default: `http://127.0.0.1:3010`) which uses Server-Sent Events for the server-to-client streaming component.
-
-## ⚙️ Configuration
-
-Configure the server's behavior using these environment variables. You can create a `.env` file in the project root to manage them.
-
-| Variable | Description | Default |
-| :--- | :--- | :--- |
+| Variable              | Description                                                                  | Default  |
+| :-------------------- | :--------------------------------------------------------------------------- | :------- |
 | `DOCWRITER_DATA_PATH` | **Required.** The root directory for storing `.tex` files and compiled PDFs. | `./data` |
-| `MCP_TRANSPORT_TYPE` | Server transport: `stdio` or `http`. | `stdio` |
-| `MCP_HTTP_PORT` | Port for the HTTP server. | `3010` |
-| `MCP_LOG_LEVEL` | Server logging level (`debug`, `info`, `warning`, `error`). | `debug` |
-| `MCP_AUTH_SECRET_KEY` | **Required for HTTP transport.** Secret key for signing/verifying auth tokens (JWT). | (none) |
+| `MCP_TRANSPORT_TYPE`  | Server transport: `stdio` or `http`.                                         | `stdio`  |
+| `MCP_LOG_LEVEL`       | Logging level (`debug`, `info`, `warning`, `error`).                         | `debug`  |
+| `MCP_HTTP_PORT`       | Port for the HTTP server.                                                    | `3010`   |
+| `MCP_AUTH_MODE`       | Authentication mode for HTTP: `jwt` or `oauth`.                              | `jwt`    |
+| `MCP_AUTH_SECRET_KEY` | **Required for `jwt` mode.** Secret key (min. 32 chars) for signing tokens.  | (none)   |
+| `OAUTH_ISSUER_URL`    | **Required for `oauth` mode.** The issuer URL of your OAuth 2.1 provider.    | (none)   |
+| `OAUTH_AUDIENCE`      | **Required for `oauth` mode.** The audience identifier for this server.      | (none)   |
 
-## 🏗️ Project Structure
+## Project Structure
 
-- **`src/`**: The heart of the application.
-  - `src/config/`: Handles loading environment variables.
-  - `src/mcp-server/`: Contains the MCP server implementation.
-    - `src/mcp-server/tools/`: The core logic for each of the document-writing tools.
-  - `src/utils/`: Core utilities for logging, error handling, and security.
-  - `src/index.ts`: The main entry point for the application.
-- **`templates/`**: Contains the LaTeX templates (`simple_report.tex`, `ieee_article.tex`).
-- **`PROJECT-SPEC.md`**: The detailed project specification document.
-- **`package.json`**: Defines project metadata, dependencies, and npm scripts.
+The codebase follows a modular structure within the `src/` directory:
 
-## 🧩 Tool Specifications
+```
+src/
+├── index.ts              # Entry point: Initializes and starts the server
+├── config/               # Configuration loading (env vars, package info)
+│   └── index.ts
+├── mcp-server/           # Core MCP server logic and capability registration
+│   ├── server.ts         # Server setup, tool registration
+│   ├── transports/       # Transport handling (stdio, http)
+│   └── tools/            # MCP Tool implementations (subdirs per tool)
+├── types-global/         # Shared TypeScript type definitions
+└── utils/                # Common utility functions (logger, error handler, etc.)
+```
 
-This server exposes the following tools. For detailed schemas and logic, please refer to `PROJECT-SPEC.md`.
+For a detailed file tree, run `npm run tree`.
 
-1.  **`docwriter_create_latex_document`**: Creates a new `.tex` file from a template.
-2.  **`docwriter_update_document_block`**: Updates a named content block within a document.
-3.  **`docwriter_apply_latex_diff`**: Applies a `diff` patch to a document for fine-grained changes.
-4.  **`docwriter_compile_latex_to_pdf`**: Compiles a `.tex` file into a PDF.
-5.  **`docwriter_list_latex_documents`**: Lists all available documents.
+## Development
 
-## 📜 License
+### Build and Test
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+```bash
+# Build the project (compile TS to JS and make executable)
+npm run build
+
+# Test the server locally using the MCP inspector tool (stdio transport)
+npm run inspector
+
+# Clean build artifacts
+npm run clean
+
+# Clean build artifacts and then rebuild the project
+npm run rebuild
+
+# Format code with Prettier
+npm run format
+
+# Start the server using stdio (default)
+npm start
+
+# Start the server using HTTP transport
+npm run start:http
+```
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 

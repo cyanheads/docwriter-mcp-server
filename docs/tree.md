@@ -1,6 +1,6 @@
 # docwriter-mcp-server - Directory Structure
 
-Generated on: 2025-06-19 05:04:23
+Generated on: 2025-06-19 05:14:15
 
 ```
 docwriter-mcp-server

@@ -2,9 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2025-06-18
+
+### Changed
+
+- **Documentation**: Significantly updated `README.md` with a more comprehensive overview, feature list, and setup instructions.
+- **Developer Guidance**: Enhanced `.clinerules` to provide more detailed architectural principles, tool specifications, and security mandates for developers.
+- **Code Quality**: Refactored tool logic and registration to improve logging, error handling, and consistency with the architectural standards.
+- **Project Specification**: Updated `PROJECT-SPEC.md` to align with the latest tool implementations.
+
 ## [1.0.1] - 2025-06-18
 
 ### Added
+
 - **New Template**: Added `research_report.tex` template for comprehensive research papers.
 - **New Tools**:
   - `docwriter_search_replace`: A tool for simple, global text replacements in documents.
@@ -13,10 +23,12 @@ All notable changes to this project will be documented in this file.
   - `docwriter_list_latex_documents`: A tool to list all available documents.
 
 ### Changed
+
 - **Dependencies**: Updated dependencies, including adding `diff-match-patch`.
 - **Tool Refinements**: Refined the `createLatexDocument` tool to support the new `research_report` template and use a `filename` parameter instead of `documentId`.
 
 ### Removed
+
 - **Legacy Tools**: Removed the `catFactFetcher` and `echoTool` as they are no longer relevant to the project's scope.
 - **Unused Dependency**: Removed `sanitize-latex` in favor of a more robust internal sanitization utility.
 
@@ -24,12 +36,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Core Functionality**: Introduced a suite of tools for programmatic LaTeX document generation:
-  - `docwriter_create_latex_document`: Creates a new `.tex` file from a template (`simple_report` or `ieee_article`).
-  - `docwriter_update_document_block`: Updates a named content block within a document.
-  - `docwriter_apply_latex_diff`: Applies a `diff` patch to a document for fine-grained changes.
-  - `docwriter_compile_latex_to_pdf`: Compiles a `.tex` file into a PDF.
-  - `docwriter_list_latex_documents`: Lists all available documents.
+- **Core Functionality**: Introduced the `docwriter-mcp-server`, a server for managing and generating LaTeX documents using the Model Context Protocol (MCP). Setup structure from `mcp-ts-template`.
 - **Templates**: Added `simple_report.tex` and `ieee_article.tex` templates with predefined content blocks.
 - **Configuration**: Added `DOCWRITER_DATA_PATH` environment variable to specify the root directory for documents.
 - **Documentation**: Added `PROJECT-SPEC.md` detailing the server's architecture and tool specifications.
