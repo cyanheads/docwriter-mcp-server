@@ -1,7 +1,7 @@
 {
   "name": "docwriter-mcp-server",
   "version": "1.0.3",
-  "description": "An MCP server for programmatic creation, modification, and compilation of structured LaTeX documents.",
+  "description": "A Model Context Protocol (MCP) server for programmatic creation, modification, and compilation of structured LaTeX documents. Enables AI agents and automated workflows to generate reports, articles, and papers from templates, with secure, structured content updates and robust PDF compilation using LuaLaTeX and Biber.",
   "main": "dist/index.js",
   "files": [
     "dist"
@@ -56,19 +56,26 @@
     "zod": "^3.25.67"
   },
   "keywords": [
-    "typescript",
-    "mcp",
-    "model-context-protocol",
-    "mcp-server",
+    "ai-agent",
+    "automation",
+    "bibliography",
+    "biber",
+    "document-generation",
     "hono",
-    "stdio",
     "http",
     "latex",
+    "lualatex",
+    "mcp",
+    "mcp-server",
+    "mcp-tool",
+    "model-context-protocol",
     "pdf",
-    "document-generation",
+    "report-generation",
+    "scientific-writing",
+    "stdio",
+    "structured-data",
     "tex",
-    "biber",
-    "bibliography"
+    "typescript"
   ],
   "author": "cyanheads <casey@caseyjhand.com>",
   "license": "Apache-2.0",

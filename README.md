@@ -22,7 +22,7 @@ This server equips your AI with specialized tools to create and manage LaTeX doc
 | [`docwriter_create_latex_document`](./src/mcp-server/tools/createLatexDocument/) | Creates a new `.tex` file from a template.                  | - Bootstrap from `simple_report`, `ieee_article`, or `research_report` templates.<br/>- Populates title and author metadata.                                   |
 | [`docwriter_update_document_block`](./src/mcp-server/tools/updateDocumentBlock/) | Updates one or more named content blocks within a document. | - Atomically updates multiple sections (e.g., `abstract`, `introduction`).<br/>- Preserves document structure.<br/>- **Securely sanitizes all input content.** |
 | [`docwriter_search_and_replace`](./src/mcp-server/tools/searchAndReplace/)       | Performs a simple, global search and replace for text.      | - Useful for quick, non-structural text changes.<br/>- Sanitizes replacement text.                                                                             |
-| [`docwriter_compile_latex_to_pdf`](./src/mcp-server/tools/compileLatexToPdf/)    | Compiles a `.tex` document into a PDF.                      | - Uses `pdflatex` with multiple passes to resolve cross-references.<br/>- Returns compilation logs for debugging.                                              |
+| [`docwriter_compile_latex_to_pdf`](./src/mcp-server/tools/compileLatexToPdf/)    | Compiles a `.tex` document into a PDF.                      | - Uses `lualatex` with multiple passes to resolve cross-references.<br/>- **Automatically runs `biber`** for bibliography processing.<br/>- Returns compilation logs for debugging. |
 | [`docwriter_list_latex_documents`](./src/mcp-server/tools/listLatexDocuments/)   | Retrieves a list of all available documents.                | - Scans the data directory for all `.tex` files.                                                                                                               |
 
 ---
@@ -64,7 +64,7 @@ Leverages the robust utilities provided by the `mcp-ts-template`:
 
 - **Template-Based Creation**: Start documents from `simple_report`, `ieee_article`, or `research_report` templates.
 - **Structured Updates**: Safely modify content within `%% -- BLOCK: ... -- %%` markers.
-- **Secure Compilation**: Executes `pdflatex` in a sandboxed manner, cleaning up auxiliary files.
+- **Secure Compilation**: Executes `lualatex` with multiple passes, automatically running `biber` for bibliographies and cleaning up auxiliary files.
 - **Filesystem Backend**: All documents and outputs are stored and managed on the local filesystem in a configurable data directory.
 
 ## Installation
@@ -73,7 +73,7 @@ Leverages the robust utilities provided by the `mcp-ts-template`:
 
 - [Node.js (>=20.0.0)](https://nodejs.org/)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
-- **A full TeX Live distribution** (or equivalent like MiKTeX). The `pdflatex` command must be in the system's `PATH`.
+- **A full TeX Live distribution** (or equivalent like MiKTeX). The `lualatex` and `biber` commands must be in the system's `PATH`.
 
 ### Install from Source
 
